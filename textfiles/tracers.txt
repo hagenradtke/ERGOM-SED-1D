@@ -1,0 +1,505 @@
+! BioCGT Tracers file
+! *******************
+! properties of Tracers:
+! name=           variable name in the code
+! description=    e.g. "flaggelates"
+! atmosDep=       0=no atmospheric depositon of this tracer (default), 1=atmospheric deposition of this tracer
+! childOf=        e.g. "flaggelates" for "red_N_in_flaggelates", default="none"
+! contents=       number n of elements contained in this tracer, default=0
+!                 This line is followed by n lines of this kind:
+!   <element> = <quantity>   where <element> is the element name (e.g., "N")
+!                            and <quantity> is the quantity of this element in one tracer unit.
+!                            Valid for <quantity> are real numbers or names of constants or code expressions, possibly containing auxiliary variables, that can be evaluated without knowing external parameters and tracer concentrations.
+! dimension=      how many instances of this tracer exist, e.g. a tracer named "cod" with dimension=2 exists as "cod_$cod" which is "cod_1" and "cod_2", default=0
+! gasName=        name of an auxiliary variable containing the concentration [mol/kg] of the dissolved gas in the surface cell, e.g. "co2" for tracer "dic". Default="" meaning it is the tracer concentration itself
+! initValue=      initial value, default="0.0", set "useInitValue" to 1 to use it
+! isActive=       1=active (default); 0=virtual tracer to check element conservation
+! isCombined=     1=combined tracer that accumulates several virtual tracers (isActive=false) in one variable, its contents are tracers rather than elements; 0=not (default)
+! isMixed=        1=mix with neighbour cells if negative, 0=do not, default=0, only applicable to tracers with vertLoc=WAT
+! isOutput=       1=occurs as output in model results (default); 0=only internal use
+! isInPorewater=  1=dissolved species which is also present in porewater, 0=not (particulate species) (default)
+! isPositive=     0=may be negative, 1=always positive (default)
+! isStiff=        0=not stiff (default); 1=stiff, use Patankar method if concentration declines; 2=stiff, always use modified Patankar method
+! massLimits=     semicolon-seperated string of (dimension-1) FORTRAN expressions for mass limits for stage-resolving models [mmol], default=""
+! molDiff=        molecular diffusivity in pore water [m2/s], use the name of a vertLoc=SED auxiliary variable, default="0.0"
+! opacity=        fortran formula for opacity [m2/mol] (for light limitation), default="0"
+! riverDep=       0=no river depositon of this tracer, 1=river deposition of this tracer (default)
+! schmidtNumber=  name of an auxiliary variable describing the Schmidt number [1] for gasses which flow through the surface, default="0"
+! solubility=     name of an auxiliary variable describing the solubility [mol/kg/Pa] for gasses which flow through the surface, default="0"
+! useInitValue=   1=use initValue as initial concentration, 0=do not (load initial concentration from file) (default)
+! verticalDistribution= Name of an auxiliary variable proportional to which the vertical distribution of the tracer is assumed. Relevant for vertLoc=FIS only. Default="1.0"
+! vertDiff=       fortran formula for vertical diffusivity [m2/s], default="0"
+! vertLoc=        WAT=everywhere in the water column (default), SED=in sediment only, SUR=at surface only, FIS=fish-type behaviour
+! vertSpeed=      fortran formula for vertical speed [m/day], default="0"
+! tracerAbove=    name of corresponding tracer in the compartment above, default="none" (e.g. "det" (in water column) if we are "benth_det")
+! tracerBelow=    name of corresponding tracer in the compartment below, default="none" (e.g. "nit" (in water column) if we are "surf_nit")
+! longname=       longname of the tracer (i.e. nitrate for a tracer named nit); used e.g. for the longname attributes in netCDF files
+! outputUnit=     unit of the tracer, which should be printed by the <unit> tag; e.g. for the unit attributes in netCDF files
+! stdname_prefix= prefix for a CF-convention standardname (inserted by the <standardname> tag), which is build by stdname_prefix+longname+stdname_suffix
+! stdname_suffix= suffix for a CF-convention standardname (inserted by the <standardname> tag), which is build by stdname_prefix+longname+stdname_suffix
+! comment=        e.g. "represents a certain kind of phytoplankton", default=""
+! *************************************************************************************
+name              = t_don
+description       = autochthonous dissolved organic nitrogen
+contents          = 3
+  N = 1
+  H = 4
+  ch = 1
+isOutput          = 0
+isOutput          = 0
+riverDep          = 0
+***********************
+name              = t_n2
+description       = dissolved molecular nitrogen
+contents          = 1
+  N = 2
+isOutput          = 0
+isInPorewater     = 1
+isOutput          = 0
+solubility        = solubility_n2
+schmidtNumber     = schmidtnumber_n2
+molarMass         = 28.0134
+riverDep          = 0
+molDiff           = molDiff_n2
+***********************
+name              = t_o2
+description       = dissolved oxygen
+comment           = molecular diffusivity from Boudreau: Diagenetic Models and Their Implementation, \\Springer
+contents          = 1
+  O = 2
+isInPorewater     = 1
+initValue         = 375.0e-6
+solubility        = solubility_o2
+schmidtNumber     = schmidtnumber_o2
+molarMass         = 31.9988
+molDiff           = molDiff_o2
+***********************
+name              = t_dic
+description       = dissolved inorganic carbon, treated as carbon dioxide
+comment           = is treated as co2, but stands for [CO2] + [HCO3-] + [CO3 2-]
+contents          = 2
+  C = 1
+  O = 2
+isInPorewater     = 1
+solubility        = k0_co2
+schmidtNumber     = schmidtnumber_co2
+gasName           = co2
+molarMass         = 44.00995
+molDiff           = molDiff_dic
+***********************
+name              = t_nh4
+description       = ammonium
+contents          = 3
+  N = 1
+  H = 4
+  ch = 1
+isInPorewater     = 1
+atmosDep          = 1
+molDiff           = molDiff_nh4
+***********************
+name              = t_no3
+description       = nitrate
+contents          = 3
+  N = 1
+  O = 3
+  ch = -1
+isInPorewater     = 1
+atmosDep          = 1
+molDiff           = molDiff_no3
+***********************
+name              = t_po4
+description       = phosphate
+contents          = 3
+  P = 1
+  O = 4
+  ch = -3
+isInPorewater     = 1
+atmosDep          = 1
+molDiff           = molDiff_po4
+***********************
+name              = t_spp
+description       = small-cell phytoplankton
+contents          = 5
+  N = 1
+  P = rfr_p
+  C = rfr_c
+  O = rfr_o
+  H = rfr_h
+isOutput          = 0
+opacity           = gamma1
+isOutput          = 0
+riverDep          = 0
+***********************
+name              = t_zoo
+description       = zooplankton
+contents          = 5
+  N = 1
+  P = rfr_p
+  C = rfr_c
+  O = rfr_o
+  H = rfr_h
+isOutput          = 0
+isOutput          = 0
+riverDep          = 0
+***********************
+name              = t_h2s
+description       = hydrogen sulfide
+contents          = 2
+  H = 2
+  S = 1
+isInPorewater     = 1
+riverDep          = 0
+molDiff           = molDiff_h2s
+***********************
+name              = t_sul
+description       = sulfur
+contents          = 1
+  S = 1
+isOutput          = 0
+isInPorewater     = 1
+useInitValue      = 1
+isOutput          = 0
+riverDep          = 0
+molDiff           = molDiff_h2s
+***********************
+name              = t_alk
+description       = total alkalinity
+comment           = Total Alkalinity is defined as the amount of a strong acid needed to \\titrate the water to a pH of 4.3\\In practice, it is calculated as a weighted sum of concentrations:\\alk_t = [OH-] - [H3O+] + [HCO3-] + 2 [CO3 2-] + [B(OH)4 -] + 2 [PO4 3-] + \\[HPO4 2-] - [H3PO4] + [HS-]
+contents          = 3
+  ohminus = 1
+  h3oplus = -1
+  t_po4 = 2
+isInPorewater     = 1
+isPositive        = 0
+isCombined        = 1
+molDiff           = molDiff_alk
+***********************
+name              = t_ips
+description       = iron-bound phosphate in the sediment
+contents          = 3
+  Fe = 1
+  P = 1
+  O = 4
+isOutput          = 0
+vertSpeed         = -4.5
+vertLoc           = SED
+isOutput          = 0
+***********************
+name              = h2o
+description       = virtual tracer (water)
+contents          = 2
+  H = 2
+  O = 1
+isOutput          = 0
+isActive          = 0
+isOutput          = 0
+***********************
+name              = t_so4
+description       = virtual tracer (sulfate)
+contents          = 3
+  S = 1
+  O = 4
+  ch = -2
+isInPorewater     = 1
+molDiff           = molDiff_so4
+***********************
+name              = h3oplus
+description       = virtual tracer (hydronium ion)
+contents          = 3
+  H = 3
+  O = 1
+  ch = 1
+isOutput          = 0
+isActive          = 0
+isOutput          = 0
+***********************
+name              = ohminus
+description       = virtual tracer (hydroxide ion)
+contents          = 3
+  O = 1
+  H = 1
+  ch = -1
+isOutput          = 0
+isActive          = 0
+isOutput          = 0
+***********************
+name              = h2
+description       = molecular hydrogen
+contents          = 1
+  H = 2
+isOutput          = 0
+isActive          = 0
+isOutput          = 0
+***********************
+name              = t_ipw
+description       = suspended iron phosphate
+contents          = 3
+  Fe = 1
+  P = 1
+  O = 4
+isOutput          = 0
+vertSpeed         = w_ipw
+isOutput          = 0
+riverDep          = 0
+***********************
+name              = t_lpp
+description       = large-cell phytoplankton
+comment           = (CH2O)106(NH3)16(H3PO4)
+contents          = 5
+  N = 1
+  P = rfr_p
+  C = rfr_c
+  O = rfr_o
+  H = rfr_h
+isOutput          = 0
+vertSpeed         = w_lpp
+opacity           = gamma1
+isOutput          = 0
+riverDep          = 0
+***********************
+name              = t_cya
+description       = diazotroph cyanobacteria
+contents          = 5
+  N = 1
+  P = rfr_p
+  C = rfr_c
+  O = rfr_o
+  H = rfr_h
+isOutput          = 0
+vertSpeed         = w_cya
+opacity           = gamma1
+isOutput          = 0
+riverDep          = 0
+***********************
+name              = t_det
+description       = detritus fractions
+contents          = 4
+  N = 1
+  C = rfr_c*rfr_pc_enrichment_det
+  O = rfr_o*rfr_pc_enrichment_det-4*rfr_p*rfr_pc_enrichment_det
+  H = (rfr_h-3)*rfr_pc_enrichment_det+3-3*rfr_p*rfr_pc_enrichment_det
+isOutput          = 0
+vertSpeed         = w_det
+vertDiff          = 1.0e-3
+opacity           = gamma1*rfr_pc_enrichment_det
+isOutput          = 0
+dimension         = 6
+***********************
+name              = t_sed
+description       = sedimentary detritus fractions
+contents          = 4
+  N = 1
+  C = rfr_c*rfr_pc_enrichment_det
+  O = rfr_o*rfr_pc_enrichment_det-4*rfr_p*rfr_pc_enrichment_det
+  H = (rfr_h-3)*rfr_pc_enrichment_det+3-3*rfr_p*rfr_pc_enrichment_det
+vertSpeed         = -4.5
+vertLoc           = SED
+dimension         = 6
+***********************
+name              = t_ihs
+description       = iron hydroxide in the sediment
+comment           = Fe[OH]3, may also be written as FeOOH, as the difference is only water
+contents          = 3
+  Fe = 1
+  O = 3
+  H = 3
+vertSpeed         = -4.5e6
+vertLoc           = SED
+***********************
+name              = t_ihw
+description       = suspended iron hydroxide
+contents          = 3
+  Fe = 1
+  O = 3
+  H = 3
+isOutput          = 0
+vertSpeed         = w_ipw
+isOutput          = 0
+***********************
+name              = t_fe2
+description       = ferrous iron
+contents          = 2
+  Fe = 1
+  ch = 2
+isInPorewater     = 1
+molDiff           = molDiff_fe2
+***********************
+name              = t_pyr
+description       = pyrite
+comment           = FeS2
+contents          = 2
+  Fe = 1
+  S = 2
+vertSpeed         = -4.5e6
+vertLoc           = SED
+***********************
+name              = t_ims
+description       = iron monosulphide
+contents          = 2
+  Fe = 1
+  S = 1
+vertSpeed         = -4.5e6
+vertLoc           = SED
+***********************
+name              = t_ca2
+description       = dissolved calcium
+contents          = 2
+  Ca = 1
+  ch = 2
+isOutput          = 0
+isInPorewater     = 1
+isOutput          = 0
+molDiff           = molDiff_ca2
+***********************
+name              = caco3
+description       = calcite
+contents          = 3
+  Ca = 1
+  C = 1
+  O = 3
+isOutput          = 0
+isActive          = 0
+isOutput          = 0
+***********************
+name              = t_mos
+description       = manganese oxide in the sediments
+comment           = It does not matter whether we have oxides or oxihydroxides - they differ by H2O only
+contents          = 2
+  Mn = 1
+  O = 2
+vertLoc           = SED
+***********************
+name              = t_mow
+description       = suspended manganese oxide
+contents          = 2
+  Mn = 1
+  O = 2
+isOutput          = 0
+vertSpeed         = w_ipw
+isOutput          = 0
+***********************
+name              = t_mn2
+description       = dissolved Manganese-II
+contents          = 2
+  Mn = 1
+  ch = 2
+isInPorewater     = 1
+molDiff           = molDiff_fe2
+***********************
+name              = t_rho
+description       = rhodochrosite
+comment           = Ca/Mn ratio of 0.6 is taken from Fig. 9 in:\\Jakobsen and Postma: Formation and solid solution behaviour of Ca-rhodochrosites in \\marine muds of the Baltic deeps
+contents          = 4
+  Mn = 1
+  Ca = 0.6
+  C = 1.6
+  O = 4.8
+vertSpeed         = -4.5e6
+vertLoc           = SED
+***********************
+name              = t_ohm_quickdiff
+description       = OH- ions with realistically quick diffusion
+isOutput          = 0
+isInPorewater     = 1
+isOutput          = 0
+molDiff           = moldiff_ohminus
+***********************
+name              = t_ohm_slowdiff
+description       = OH- ions which move unrealistically slow with alkalinity
+isOutput          = 0
+isInPorewater     = 1
+isOutput          = 0
+molDiff           = moldiff_alk
+***********************
+name              = t_hss
+description       = hydrogen bound to sheet silicates
+contents          = 2
+  H = 1
+  ch = 1
+isOutput          = 0
+vertLoc           = SED
+isOutput          = 0
+***********************
+name              = t_sil
+description       = silicate
+contents          = 3
+  Si = 1
+  O = 4
+  H = 4
+isInPorewater     = 1
+molDiff           = molDiff_sil
+***********************
+name              = t_iim
+description       = iron in illite-montmorillonite mixed layer minerals
+comment           = will adsorb also hydroxide to account for positive charge
+contents          = 3
+  Fe = 1
+  O = 2
+  H = 2
+vertLoc           = SED
+***********************
+name              = t_i3i
+description       = potentially reducible iron-III in illite-montmorillonite mixed layer minerals
+contents          = 3
+  Fe = 1
+  O = 3
+  H = 3
+vertLoc           = SED
+***********************
+name              = i2i
+description       = structural iron-II in illite-montmorillonite mixed layer minerals
+contents          = 3
+  Fe = 1
+  O = 2
+  H = 2
+isOutput          = 0
+vertLoc           = SED
+isActive          = 0
+isOutput          = 0
+***********************
+name              = t_ihc
+description       = iron hydroxide in the sediment - crystalline phase
+contents          = 3
+  Fe = 1
+  O = 3
+  H = 3
+vertSpeed         = -4.5e6
+vertLoc           = SED
+***********************
+name              = t_pim
+description       = phosphate bound to illite-montmorillonite
+contents          = 3
+  P = 1
+  O = 4
+  H = 3
+vertLoc           = SED
+***********************
+name              = t_aim
+description       = ammonium bound to illite-montmorillonite
+contents          = 2
+  N = 1
+  H = 3
+vertLoc           = SED
+***********************
+name              = t_detp
+description       = phosphate in detritus fractions
+contents          = 3
+  P = rfr_p*rfr_pc_enrichment_det
+  O = 4*rfr_p*rfr_pc_enrichment_det
+  H = 3*rfr_p*rfr_pc_enrichment_det
+isOutput          = 0
+vertSpeed         = w_det
+vertDiff          = 1.0e-3
+isOutput          = 0
+dimension         = 6
+***********************
+name              = t_sedp
+description       = phosphate in sedimentary detritus fractions
+contents          = 3
+  P = rfr_p*rfr_pc_enrichment_det
+  O = 4*rfr_p*rfr_pc_enrichment_det
+  H = 3*rfr_p*rfr_pc_enrichment_det
+vertSpeed         = -4.5
+vertLoc           = SED
+dimension         = 6
+***********************

@@ -1,0 +1,6 @@
+% depth of full bioturbation
+ 0.04 
+% depth scale for exponential decay of bioturbation
+ 0.012 
+% depth where bioturbation is set to zero
+ 0.062 

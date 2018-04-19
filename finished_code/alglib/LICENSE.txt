@@ -1,0 +1,3 @@
+ALGLIB is a free software which is distributed under a GPL license - version 2 or (at your option) any later version. A copy of the GNU General Public License is available at http://www.fsf.org/licensing/licenses
+
+ALGLIB can be downloaded from http://alglib.sources.ru/download.php

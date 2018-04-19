@@ -1,0 +1,628 @@
+! BioCGT constants file
+! *********************
+! properties of constants:
+!   name=           code name of constant
+!   description=    description including unit, default=""
+!   value=          value(s) separated by ";"
+!   dependsOn=      whether this constant varies in time and space, default="none", other possible values: "xyz"
+!   minval=         minimum value for variation (for inverse modelling)
+!   maxval=         maximum value for variation (for inverse modelling)
+!   varphase=       phase in which a parameter is allowed to vary (for inverse modelling) (default=1)
+!   comment=        comment, e.g. how certain this value is, literature,..., default=""
+! *************************************************************************************
+name        = critical_stress
+value       = 0.016
+description = critical shear stress for sediment erosion [N/m2]
+comment     = This is only for erosion of the fluffy layer.\\Values of 0.013-0.026 N/m2 were measured in:\\Christiansen, C, K Edelvang, K Emeis, G Graf, S Jähmlich, J Kozuch, M Laima, et al. \\"Material Transport from the Nearshore to the Basinal Environment in the Southern \\Baltic \\Sea: I. Processes and Mass Estimates." Journal of Marine Systems 35, no. 3-4 (July 1, \\2002): \\133-150. doi:10.1016/S0924-7963(02)00126-4.
+***********************
+name        = cya0
+value       = 0.0045e-6
+description = seed concentration for diazotroph cyanobacteria [mol/kg]
+***********************
+name        = din_min_lpp
+value       = 1.125e-6
+description = DIN half saturation constant for large-cell phytoplankton growth [mol/kg]
+***********************
+name        = din_min_spp
+value       = 0.45e-6
+description = DIN half saturation constant for small-cell phytoplankton growth [mol/kg]
+***********************
+name        = dip_min_cya
+value       = 0.1125e-6
+description = DIP half saturation constant for diazotroph cyanobacteria growth [mol/kg]
+***********************
+name        = epsilon
+value       = 4.5E-17
+description = no division by 0
+***********************
+name        = food_min_zoo
+value       = 4.108e-6
+description = Ivlev phytoplankton concentration for zooplankton grazing [mol/kg]
+***********************
+name        = gamma0
+value       = 0.18
+description = light attentuation parameter (opacity of clear water) [1/m]
+***********************
+name        = gamma1
+value       = 30.0
+description = light attentuation parameter (opacity of POM containing chlorophyll) [m**2/mol]
+***********************
+name        = ihs_min_sed_irred
+value       = 0.0065
+minval      = 0.0065
+maxval      = 0.01
+description = iron hydroxide half-saturation concentration for detritus remineralization by iron reduction [mol/kg]
+comment     = value       = 0.065*(1-POR) after \\Reed et al. (2011) Sedimentary phosphorus dynamics and the evolution of \\bottom-water \\hypoxia: A coupled benthic-pelagic model of a coastal system\\Range taken from Reed et al.
+***********************
+name        = mos_min_sed_irred
+value       = 0.0004
+minval      = 0.0004
+maxval      = 0.0032
+description = iron hydroxide half-saturation concentration for detritus remineralization by iron reduction [mol/kg]
+comment     = value       = 0.004*(1-POR) after \\Reed et al. (2011) Sedimentary phosphorus dynamics and the evolution of \\bottom-water \\hypoxia: A coupled benthic-pelagic model of a coastal system\\range taken from Reed et al.
+***********************
+name        = k_h2s_no3
+value       = 4.38e+2
+minval      = 43.8
+maxval      = 4380
+description = reaction constant h2s oxidation with no3 [kg/mol/day]
+***********************
+name        = k_h2s_o2
+value       = 4.38e+2
+minval      = 43.8
+maxval      = 4380
+description = reaction constant h2s oxidation with o2 [kg/mol/day]
+comment     = Reed et al.
+***********************
+name        = k_sul_no3
+value       = 2.0e4
+minval      = 2000
+maxval      = 200000
+description = reaction constant sul oxidation with no3 [kg/mol/day]
+***********************
+name        = k_sul_o2
+value       = 2.0e4
+minval      = 2000
+maxval      = 200000
+description = reaction constant sul oxidation with o2 [kg/mol/day]
+***********************
+name        = light_opt_cya
+value       = 50.0
+description = optimal light for diazotroph cyanobacteria growth [W/m²]
+***********************
+name        = light_opt_lpp
+value       = 35.0
+description = optimal light for large-cell phytoplankton growth [W/m²]
+***********************
+name        = light_opt_spp
+value       = 50.0
+description = optimal light for small-cell phytoplankton growth [W/m²]
+***********************
+name        = lpp0
+value       = 0.0045e-6
+description = seed concentration for large-cell phytoplankton [mol/kg]
+***********************
+name        = no3_min_sed_denit
+value       = 4.0e-6
+minval      = 4E-6
+maxval      = 8E-5
+description = nitrate half-saturation concentration for denitrification in the water column [mol/kg]
+comment     = value       = 4.0e-6 nach \\Reed et al. 2011: Sedimentary phosphorus dynamics and the evolution of \\bottom-water \\hypoxia: A coupled benthic-pelagic model of a coastal system\\Range given by Reed et al.
+***********************
+name        = no3_min_det_denit
+value       = 1.0e-9
+description = minimum no3 concentration for recycling of detritus using nitrate (denitrification)
+***********************
+name        = o2_min_det_resp
+value       = 10.0e-6
+description = oxygen half-saturation constant for detritus recycling [mol/kg]
+***********************
+name        = o2_min_nit
+value       = 1.0e-6
+minval      = 1E-7
+maxval      = 1E-5
+description = oxygen half-saturation constant for nitrification [mol/kg]
+comment     = Soetaert, Karline, Peter MJ Herman, and Jack J. Middelburg. "A model of early \\diagenetic processes from the shelf to abyssal depths." Geochimica et Cosmochimica \\Acta 60.6 (1996): 1019-1040.
+***********************
+name        = o2_min_sed_resp
+value       = 2.0e-5
+minval      = 1E-6
+maxval      = 3E-5
+description = oxygen half-saturation constant for recycling of sediment detritus using oxygen [mol/kg]
+comment     = set analogous to water column value\\1.0e-6 is used in\\Soetaert, Karline, Peter MJ Herman, and Jack J. Middelburg. "A model of early \\diagenetic processes from the shelf to abyssal depths." Geochimica et \\Cosmochimica \\Acta 60.6 (1996): 1019-1040.\\10.0e-6 is used in\\Wijsman et al., 2002: A Model for Early Diagenetic Processes in Sediments of \\the Continental Shelf of the Black Sea. Estuarine, Coastal and Shelf Science \\54, 403\\-421\\Range taken from Reed et al.
+***********************
+name        = patm_co2
+value       = 35.8
+description = atmospheric partial pressure of CO2 [Pa]
+comment     = Schneider et.al.: CO2 partial pressure in Northeast Atlantic and adjacent shelf waters: Processes and seasonal variability
+***********************
+name        = q10_det_rec
+value       = 0.15
+description = q10 rule factor for recycling [1/K]
+***********************
+name        = q10_h2s
+value       = 0.0693
+description = q10 rule factor for oxidation of h2s and sul [1/K]
+***********************
+name        = q10_nit
+value       = 0.11
+description = q10 rule factor for nitrification [1/K]
+***********************
+name        = q10_sed_rec
+value       = 0.175
+minval      = 0.0693
+maxval      = 0.2
+description = q10 rule factor for detritus recycling in the sediment [1/K]
+***********************
+name        = r_biores
+value       = 0.03
+description = bio-resuspension rate [1/day]
+***********************
+name        = r_cya_assim
+value       = 0.75*0.0
+description = maximum rate for nutrient uptake of diazotroph cyanobacteria [1/day]
+***********************
+name        = r_cya_resp
+value       = 0.01
+description = respiration rate of cyanobacteria to ammonium [1/day]
+***********************
+name        = r_det_rec
+value       = 0.003
+description = recycling rate (detritus to ammonium) at 0°C [1/day]
+***********************
+name        = r_ips_ero
+value       = 6.0
+description = erosion rate for iron PO4 [1/day]
+***********************
+name        = r_lpp_assim
+value       = 1.38
+description = maximum rate for nutrient uptake of large-cell phytoplankton [1/day]
+***********************
+name        = r_lpp_resp
+value       = 0.05
+description = respiration rate of large phytoplankton to ammonium [1/day]
+***********************
+name        = r_nh4_nitrif
+value       = 0.1
+description = nitrification rate at 0°C [1/day]
+***********************
+name        = r_pp_mort
+value       = 0.02
+description = mortality rate of phytoplankton [1/day]
+***********************
+name        = r_sed_ero
+value       = 6.0
+description = maximum sediment detritus erosion rate [1/day]
+comment     = On one day, the benthos would be eroded 6 times if there were always erosion.
+***********************
+name        = r_spp_assim
+value       = 0.46
+description = maximum rate for nutrient uptake of small-cell phytoplankton [1/day]
+***********************
+name        = r_spp_resp
+value       = 0.03
+description = respiration rate of small phytoplankton to ammonium [1/day]
+***********************
+name        = r_zoo_graz
+value       = 0.5
+description = maximum zooplankton grazing rate [1/day]
+***********************
+name        = r_zoo_mort
+value       = 0.03
+description = mortality rate of zooplankton [1/day]
+***********************
+name        = r_zoo_resp
+value       = 0.01
+description = respiration rate of zooplankton [1/day]
+***********************
+name        = rfr_c
+value       = 6.625
+description = redfield ratio C/N
+comment     = equals 106/16
+***********************
+name        = rfr_h
+value       = 16.4375
+description = redfield ratio H/N
+comment     = equals 263/16
+***********************
+name        = rfr_o
+value       = 6.875
+description = redfield ratio O/N
+comment     = equals 110/16
+***********************
+name        = rfr_p
+value       = 0.0625
+description = redfield ratio P/N
+comment     = equals 1/16
+***********************
+name        = rfr_pc_enrichment_det
+value       = 1.5
+description = enrichment factor for P and C in detritus [1]
+***********************
+name        = sali_max_cya
+value       = 10.0
+description = upper salinity limit - diazotroph cyanobacteria [psu]
+***********************
+name        = sali_min_cya
+value       = 1.0
+description = lower salinity limit - diazotroph cyanobacteria [psu]
+***********************
+name        = sed_max
+value       = 4.5
+description = maximum sediment detritus concentration that feels erosion [mol/m**2]
+***********************
+name        = spp0
+value       = 0.0045e-6
+description = seed concentration for small-cell phytoplankton [mol/kg]
+***********************
+name        = temp_min_cya
+value       = 13.5
+description = lower temperature limit - diazotroph cyanobacteria [°C]
+***********************
+name        = temp_min_spp
+value       = 10
+description = lower temperature limit - small-cell phytoplankton [°C]
+***********************
+name        = temp_opt_zoo
+value       = 20
+description = optimal temperature for zooplankton grazing [°C]
+***********************
+name        = w_co2_stf
+value       = 0.5
+description = piston velocity for co2 surface flux [m/d]
+***********************
+name        = w_cya
+value       = 0.1
+description = vertical speed of diazotroph cyanobacteria [m/day]
+***********************
+name        = w_det
+value       = -4.5
+description = vertical speed of detritus [m/day]
+***********************
+name        = w_det_sedi
+value       = -2.25
+description = sedimentation velocity (negative for downward) [m/day]
+comment     = On one day, the lowest 2.25m of suspended detritus are deposited in the sediment. \\(=0.5*w_det)
+***********************
+name        = w_ipw
+value       = -1.0
+description = vertical speed of suspended iron PO4 [m/day]
+***********************
+name        = w_ipw_sedi
+value       = -0.5
+description = sedimentation velocity for iron PO4 [m/day]
+***********************
+name        = w_lpp
+value       = -0.5
+description = vertical speed of large-cell phytoplankton [m/day]
+***********************
+name        = w_n2_stf
+value       = 5.0
+description = piston velocity for n2 surface flux [m/d]
+***********************
+name        = w_o2_stf
+value       = 5.0
+description = piston velocity for oxygen surface flux [m/d]
+***********************
+name        = zoo0
+value       = 0.0045e-6
+description = seed concentration for zooplankton [mol/kg]
+***********************
+name        = zoo_cl
+value       = 0.09e-6
+description = zooplankton closure parameter [mol/kg]
+***********************
+name        = don_fraction
+value       = 0.1
+description = fraction of DON in respiration products
+***********************
+name        = r_don_rec
+value       = 0.01
+description = rate constant mineralizing DON into NH4 [1/d]
+***********************
+name        = so4_min_det_sulf
+value       = 1.0e-6
+minval      = 1E-7
+maxval      = 1E-5
+description = minimum sulfate concentration for sulfate reduction [mol/kg]
+comment     = Value guessed from \\Pallud, C., & Van Cappellen, P. (2006). Kinetics of microbial sulfate reduction in \\estuarine sediments. Geochimica et Cosmochimica Acta, 70(5), 1148-1162.
+***********************
+name        = k_nh4_o2
+value       = 2.74e5
+minval      = 27400
+maxval      = 2740000
+description = nitrification rate for ammonium in the sediment at 0°C [1/d]
+***********************
+name        = frac_det_1
+value       = 0.26
+description = fraction of this detritus class in total detritus production [1]
+***********************
+name        = frac_det_2
+value       = 0.16
+description = fraction of this detritus class in total detritus production [1]
+***********************
+name        = frac_det_3
+value       = 0.16
+description = fraction of this detritus class in total detritus production [1]
+***********************
+name        = frac_det_4
+value       = 0.16
+description = fraction of this detritus class in total detritus production [1]
+***********************
+name        = frac_det_5
+value       = 0.08
+description = fraction of this detritus class in total detritus production [1]
+***********************
+name        = frac_det_6
+value       = 0.18
+description = fraction of this detritus class in total detritus production [1]
+***********************
+name        = r_det_1_rec
+value       = 0.0647
+description = detritus recycling rates [1/d]
+***********************
+name        = r_det_2_rec
+value       = 0.00924
+description = detritus recycling rates [1/d]
+***********************
+name        = r_det_3_rec
+value       = 0.00136
+description = detritus recycling rates [1/d]
+***********************
+name        = r_det_4_rec
+value       = 0.000108
+description = detritus recycling rates [1/d]
+***********************
+name        = r_det_5_rec
+value       = 0.0000162
+description = detritus recycling rates [1/d]
+***********************
+name        = r_det_6_rec
+value       = 0.0
+description = detritus recycling rates [1/d]
+***********************
+name        = k_pyrite
+value       = 8.9
+minval      = 1
+maxval      = 100
+description = rate constant for formation of pyrite [kg/mol/d]
+***********************
+name        = ks_fes
+value       = 6.31e-3
+minval      = 0.000631
+maxval      = 0.0631
+description = saturation constant for iron monosulfide solubility [mol/kg]
+***********************
+name        = k_ips_dissolution
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = inverse timescale for dissolution of iron phosphate [1/d]
+comment     = 0.1 in Sundby et al. 1992: The phosphorus cycle in coastal marine sediments
+***********************
+name        = r_fluffy_moveaway
+value       = 0.0
+minval      = 0
+maxval      = 0.5
+description = rate with which fluffy layer is transported to deeper areas [1/d]
+comment     = Arkona 0.0\\Tromper Wieck 0.002
+***********************
+name        = sal_for_so4
+value       = 21.41
+minval      = 0.1
+maxval      = 40
+description = salinity for determination of water column sulfate [g/kg]
+comment     = Arkona 20.8681
+***********************
+name        = mar
+value       = 0.46
+minval      = 0
+maxval      = 10
+description = mass accumulation rate [kg/m2/a]
+comment     = 2 mm/a according to\\Kersten, M., Leipe, T., Tauber, F., 2005. Storm disturbance of sediment contaminants \\at a Hot-Spot in the Baltic Sea assessed by 234Th radionuclide tracer profiles. \\Environmental science & technology 39, 984--990.
+***********************
+name        = dbd
+value       = 1.0
+minval      = 0
+maxval      = 10
+description = dry bulk density [g/cm3]
+comment     = Arkona 1.1\\Oderbank 2.65\\Tromper Wieck 1.6
+***********************
+name        = por
+value       = 0.77
+minval      = 0
+maxval      = 1
+description = porosity
+***********************
+name        = accratedet
+value       = 1.5
+minval      = 0
+maxval      = 20
+description = accumulation ratio of detritus (import vs. local production) [1]
+***********************
+name        = k_h2s_ihs
+value       = 2.19e+1
+minval      = 2.19
+maxval      = 219
+description = rate constant for hydrogen sulfide oxidation in presence of iron-III minerals [1/d]
+***********************
+name        = ratio_Mn_Fe
+value       = 0.04
+minval      = 0.002
+maxval      = 0.2
+description = ratio between manganese oxides and iron oxyhydroxides that are imported/precipitate in the water column
+***********************
+name        = k_mno2
+value       = 5.48e5
+minval      = 2191
+maxval      = 548000
+description = oxidation constant for manganese-II [kg3/mol3/d]
+comment     = Van Cappelen and Wang, 1996\\Range from Reed et al.
+***********************
+name        = pH_opt_ironred
+value       = 7.2
+description = optimal pH for iron reduction [1]
+***********************
+name        = pH_max_ironred
+value       = 20.0
+description = maximum pH for iron reduction [1]
+***********************
+name        = rfr_si
+value       = 15.0/16.0
+description = average ratio Si/N [1]
+***********************
+name        = vol_fraction_im
+value       = 0.5
+minval      = 0
+maxval      = 0.5
+description = fraction of illite-montmorillonite mixed layer minerals on volume of all minerals [1]
+comment     = from particle analysis\\old val = 0.5
+***********************
+name        = fe_content_im
+value       = 0.001
+minval      = 0
+maxval      = 0.07
+description = potentially reducible iron content of illite-montmorillonite mixed layer minerals [g/g]
+comment     = maximum value from particle analysis\\old val = 0.001
+***********************
+name        = p_content_im
+value       = 0.0002
+minval      = 0
+maxval      = 0.0003
+description = mass fraction of phosphate that can be adsorbed/desorbed to illite-montmorillonite mixed layer minerals [1]
+comment     = 0.0003 is the maximum value the measurements from Lübeck Bight core support\\old val = 0.0002
+***********************
+name        = n_content_im
+value       = 0.0
+minval      = 0
+maxval      = 0.0004
+description = mass fraction of ammonium that can be adsorbed/desorbed to illite-montmorillonite mixed layer minerals [1]
+comment     = value is about 0.000072, but for all, not only montmorillonite, in\\Raaphorst, W.V., Malschaert, J.F.P., 1996. Ammonium adsorption in superficial North \\Sea sediments. Continental Shelf Research 16, 1415-1435. doi:10.1016/0278-4343(95)\\00081-X\\old val = 0.0001
+***********************
+name        = po4_ads_pim
+value       = 3.0e-5
+minval      = 1E-5
+maxval      = 0.0001
+description = phosphate concentration when phosphate in illite-montmorillonite mixed layer minerals is fully adsorbed [mol/kg]
+***********************
+name        = nh4_ads_aim
+value       = 4.0e-5
+minval      = 1E-5
+maxval      = 0.0001
+description = ammonium concentration when ammonium in illite-montmorillonite mixed layer minerals is fully adsorbed [mol/kg]
+comment     = value for montmorillonite from\\Raaphorst, W.V., Malschaert, J.F.P., 1996. Ammonium adsorption in superficial North \\Sea sediments. Continental Shelf Research 16, 1415-1435. doi:10.1016/0278-4343(95)\\00081-X
+***********************
+name        = ihs_deposition
+value       = 0.7
+minval      = 0.07
+maxval      = 7
+description = ratio between iron hydroxide and local detritus deposition [1]
+***********************
+name        = r_h3o_ads
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = rate of proton adsorption to illite-montmorillonite mixed layer minerals [1/d]
+***********************
+name        = r_max_lib_mn2_pyrox
+value       = 1.0e-5
+minval      = 1E-6
+maxval      = 0.0001
+description = maximum rate of mn2 liberation due to pyrite reduction [mol/kg/d]
+***********************
+name        = r_max_ox_pyr
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = maximum oxidation rate of pyrite [1/d]
+***********************
+name        = k_o2_pyr
+value       = 2.73
+minval      = 0.273
+maxval      = 27.3
+description = rate coefficient for oxygen consumption by pyrite oxidation [kg/mol/d]
+comment     = Reed et al.
+***********************
+name        = r_i2i_ox
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = rate of oxidation of iron-II in illite-montmorillonite mixed-layer minerals [1/d]
+***********************
+name        = r_h2s_ox_i3i
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = rate of h2s reduction by i3i oxidation [1/d]
+***********************
+name        = r_po4_ads_pim
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = rate of phosphate adsorption/desorption to illite-montmorillonite [1/d]
+***********************
+name        = r_nh4_ads_aim
+value       = 0.1
+minval      = 0.01
+maxval      = 1
+description = rate of ammonium adsorption/desorption to illite-montmorillonite mixed-layer minerals [1/d]
+***********************
+name        = r_ims_diss
+value       = 1.0e-3
+minval      = 0.0001
+maxval      = 0.01
+description = rate of iron monosulfide dissolution [1/d]
+***********************
+name        = r_iim_diss
+value       = 1.0e-3
+minval      = 0.0001
+maxval      = 0.01
+description = dissilution rate of iron adsorbed to illite-montmorillonite mixed-layer minerals [1/d]
+***********************
+name        = r_ihs_trans_ihc
+value       = 1.64e-3
+minval      = 0.000164
+maxval      = 0.0164
+description = transformation rate from amorphous to crystalline iron hydroxide [1/d]
+comment     = Reed et al.
+***********************
+name        = k_mno2_fe2
+value       = 5.48
+minval      = 0.548
+maxval      = 54.8
+description = rate constant for MnO2 reduction by Fe2+ [kg/mol/d]
+comment     = Reed et al.
+***********************
+name        = k_ims_o2
+value       = 8.22e+2
+minval      = 82.2
+maxval      = 8220
+description = rate constant for ims oxidation by O2 [kg/mol/d]
+comment     = Reed et al.
+***********************
+name        = k_mno2_h2s
+value       = 5.84e+1
+minval      = 5.84
+maxval      = 584
+description = rate constant for manganese oxide reduction by h2s [kg/mol/d]
+comment     = Reed et al.
+***********************
+name        = factor_pref_remin_p
+value       = 10.0
+minval      = 0
+maxval      = 100
+description = acceleration factor for preferential mineralization of P compared to N under hypoxic conditions [1]
+comment     = minimum and maximum values taken by Reed et al.
+***********************
+name        = ihs_deposition_moveaway
+value       = 0.0
+minval      = 0
+maxval      = 0.02
+description = value for vertical ihw flux to sediment that compensates for transport to deeper basins
+***********************
+name        = vel_remin_deep
+value       = 0.0
+minval      = 0
+maxval      = 1E-9
+description = effective velocity of detritus mineralization in the deepest layer [m/s]
+***********************

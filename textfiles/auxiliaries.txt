@@ -1,0 +1,782 @@
+! BioCGT auxiliaries file
+! ***********************
+! properties of auxiliaries:  (auxiliary values that are calculated)
+! name=               variable name in the code
+! description=        e.g. "absolute temperature [K]" default=""
+! temp1= ... temp9=   for calculating a temporary value which appears in the formula. e.g. temp1=no3*no3 temp2=no3limit*no3limit formula=temp1/(temp1+temp2), default=""
+! formula=            formula as it appears in the code
+! calcAfterProcesses= 1=calculate this auxiliary after all process rates are known, default=0
+! iterations=         how often this auxiliary variable is calculated in an iterative loop, default=0
+! iterInit=           the initial value in the iterative loop, default="0.0"
+! isOutput=           1=occurs as output in model results; 0=internal use only (default)
+! isUsedElsewhere=    1=make the value of this auxiliary accessible from outside the biological model (e.g. use a "diagnostic tracer" in MOM4); 0=internal use only (default)
+! isZGradient=        1=is a vertical gradient of a tracer, 0=is not (default). If 1, "formula" must be the name of the tracer, which must have vertLoc=WAT. isZGradient=1 requires vertLoc=WAT.
+! isZIntegral=        1=is a vertical integral (of value times density) of a tracer or an auxiliary variable, 0=is not (default). If 1 "formula" must be the name of the tracer, which must have vertLoc=WAT. isZIntegral=1 requires vertLoc=SED.
+! vertLoc=            WAT=z-dependent (default), SED=in the bottom cell only, SUR=in the surface cell only
+! comment=            e.g. a literature reference, default=""
+!
+! All entries with the same value of calcAfterProcesses are calculated in given order.
+! *************************************************************************************
+name               = temp_k
+formula            = cgt_temp + 273.15
+iterations         = 1
+description        = absolute temperature [K]
+***********************
+name               = ph_temp
+formula            = 0.0-log(h3o)/log(10.0)
+iterations         = 10
+description        = temporary value assumed for pH [1]
+***********************
+name               = k_water
+formula            = exp( -13847.26 / temp_k + 148.96502 - 23.6521 * log(temp_k) + (118.67/temp_k - 5.977 + 1.0495 * log(temp_k)) * sqrt(cgt_sali) - 0.01615 * cgt_sali)
+iterations         = 1
+description        = self-ionization constant of Water [mol2/kg2]
+comment            = Millero (1995) (in Dickson and Goyet (1994, Chapter 5, p.18))
+***********************
+name               = k0_co2
+formula            = exp(9345.17 / temp_k - 60.2409 + 23.3585 * (log(temp_k) - 4.605170186) + cgt_sali*(0.023517 - 0.00023656 * temp_k + 0.00000047036 *temp_k*temp_k))/101325.0
+iterations         = 1
+description        = Solubility of CO2 [mol/kg/Pa]
+comment            = Weiss , 1974; Dickson, 2007: Guide to Best Practices for Ocean CO2 Measurements \\ value is given in [mol/kg/atm] in Dickson, 2007, (chapter 5 section 7 eqn 30), the factor \\101325.0 is to convert between atm and Pa.
+***********************
+name               = k1_co2
+formula            = power(10.0,( -3633.86 / temp_k + 61.2172 - 9.6777 * log(temp_k) + 0.011555 * cgt_sali - 0.0001152 * cgt_sali * cgt_sali))
+iterations         = 1
+description        = Acid dissociation constant CO2 + 2 H2O <-> HCO3- + H3O+ [mol/kg]
+comment            = k1_co2 = [HCO3 -] * ([H3O+] + [HSO4 -]) / ([CO2] + [H2CO3]) \\ Dickson 2007: Guide to Best Practices for Ocean CO2 Measurements
+***********************
+name               = k2_co2
+formula            = power(10.0,( -471.78 / temp_k - 25.929 + 3.16967 * log(temp_k) + 0.01781 * cgt_sali - 0.0001122 * cgt_sali * cgt_sali))
+iterations         = 1
+description        = Acid dissociation constant HCO3- + H2O <-> [CO3 2-] + H3O+ [mol/kg]
+comment            = Dickson 2007: Guide to Best Practices for Ocean CO2 Measurements
+***********************
+name               = k_boron
+formula            = exp(( -8966.9 - 2890.53*sqrt(cgt_sali) - 77.942*cgt_sali + 1.728*cgt_sali*sqrt(cgt_sali) - 0.0996*cgt_sali*cgt_sali) / temp_k + 148.0248 + 137.1942*sqrt(cgt_sali) + 1.62142*cgt_sali + (-24.4344 - 25.085*sqrt(cgt_sali) - 0.2474*cgt_sali)*log(temp_k) + 0.053105*sqrt(cgt_sali)*temp_k )
+iterations         = 1
+description        = Acid dissociation constant of boric acid [mol/kg]
+comment            = B(OH)3 + 2 H2O <-> [B(OH)4 -] + H3O+ \\ Dickson 2007: Guide to Best Practices for Ocean CO2 Measurements
+***********************
+name               = k1_po4
+formula            = exp( -4576.752/temp_k + 115.525 - 18.453*log(temp_k) + (0.69171 - 106.736/temp_k)*sqrt(cgt_sali) - (0.01844 + 0.65643/temp_k)*cgt_sali )
+iterations         = 1
+description        = Acid dissociation constant H3PO4 + H2O <-> [H2PO4 -] + H3O+ [mol/kg]
+comment            = Dickson 2007: Guide to Best Practices for Ocean CO2 Measurements \\ (originally by Millero, 1995)
+***********************
+name               = k2_po4
+formula            = exp( -8814.715/temp_k + 172.0883 - 27.927*log(temp_k) + (1.35660 - 160.340/temp_k)*sqrt(cgt_sali) - (0.05778 - 0.37335/temp_k)*cgt_sali )
+iterations         = 1
+description        = Acid dissociation constant [H2PO4 -] + H2O+ <-> [HPO4 2-] + H3O+ [mol/kg]
+comment            = Dickson 2007: Guide to Best Practices for Ocean CO2 Measurements \\ (originally by Millero, 1995)
+***********************
+name               = k3_po4
+formula            = exp( -3070.75/temp_k - 18.141 + (2.81197 + 17.27039/temp_k)*sqrt(cgt_sali) - (0.09984 + 44.99486/temp_k)*cgt_sali )
+iterations         = 1
+description        = Acid dissociation constant [HPO4 2-] + H2O <-> [PO4 3-] + H3O+ [mol/kg]
+comment            = Dickson 2007: Guide to Best Practices for Ocean CO2 Measurements, page 172 (page 15 of chapter 5)\\ (originally by Millero, 1995)
+***********************
+name               = k1_h2s
+formula            = exp( -3131.42/temp_k - 5.818 + 0.368*(power(max(0.0,cgt_sali),(1.0/3.0))))
+iterations         = 1
+description        = Acid dissociation constant H2S + H2O <-> HS- + H3O+ [mol/kg]
+comment            = Goldhaber and Kaplan, 1975: Apparent dissociation constants of hydrogen sulfide in \\chloride \\solutions, Marine Chemistry 3 (2), 1975, pages 83–104
+***********************
+name               = boron_total
+formula            = 0.000416 * cgt_sali/35.0
+iterations         = 1
+description        = total concentration of boron [mol/kg]
+comment            = Moberg and Harding 1933: The Boron Content of Sea Water, Science
+***********************
+name               = alk_boron
+formula            = boron_total * k_boron / (k_boron + h3o)
+iterations         = 10
+description        = boron alkalinity [mol/kg]
+comment            = concentration of [B(OH)4]-
+***********************
+name               = alk_h2s
+formula            = t_h2s * k1_h2s / (k1_h2s + h3o)
+iterations         = 10
+description        = hydrogen sulfide alkalinity [mol/kg]
+comment            = concentration of HS-
+***********************
+name               = alk_water
+formula            = k_water / h3o - h3o
+iterations         = 10
+description        = water alkalinity [mol/kg]
+comment            = concentration of OH- - H3O+
+***********************
+name               = alk_po4_denominator
+formula            = (h3o*h3o*h3o + k1_po4*h3o*h3o + k1_po4*k2_po4*h3o + k1_po4*k2_po4*k3_po4)
+iterations         = 10
+description        = denominator in phosphate alkalinity formula [mol3/kg3]
+***********************
+name               = alk_po4
+formula            = t_po4*(k1_po4*k2_po4*h3o + 2.0*k1_po4*k2_po4*k3_po4 - h3o*h3o*h3o) / alk_po4_denominator
+iterations         = 10
+description        = phosphate alkalinity [mol/kg]
+comment            = concentration of - [H3PO4] + [HPO4 2-] + 2*[PO4 3-]
+***********************
+name               = alk_co2_denominator
+formula            = (h3o*h3o + k1_co2*h3o + k1_co2*k2_co2)
+iterations         = 10
+description        = denominator in carbonate alkalinity formula [mol2/kg2]
+***********************
+name               = alk_co2
+formula            = t_dic*k1_co2*(h3o+2*k2_co2)/alk_co2_denominator
+iterations         = 10
+description        = carbonate alkalinity [mol/kg]
+comment            = concentration of [HCO3-] + 2*[CO3 2-]
+***********************
+name               = alk_residual
+formula            = t_alk - alk_co2 - alk_po4 - alk_boron - alk_h2s - alk_water
+iterations         = 10
+description        = error in total alkalinity calculation at the assumed pH [mol/kg]
+***********************
+name               = dalkp_dh3o
+formula            = t_po4*(0.0-k1_po4*h3o*h3o*h3o*h3o-4*k1_po4*k2_po4*h3o*h3o*h3o-(k1_po4*k1_po4*k2_po4+9*k1_po4*k2_po4*k3_po4)*h3o*h3o-4*k1_po4*k1_po4*k2_po4*k3_po4*h3o-k1_po4*k1_po4*k2_po4*k2_po4*k3_po4)/(alk_po4_denominator*alk_po4_denominator)
+iterations         = 10
+description        = derivative of phosphate alkalinity with respect to h3o [1]
+***********************
+name               = dalkc_dh3o
+formula            = t_dic*(0.0-k1_co2*h3o*h3o-k1_co2*k1_co2*k2_co2-4*k1_co2*k2_co2*h3o)/(alk_co2_denominator*alk_co2_denominator)
+iterations         = 10
+description        = derivative of carbonate alkalinity with respect to h3o [1]
+***********************
+name               = dalkresidual_dpH
+formula            = 0.0-log(10.0)*h3o*(alk_boron/(k_boron+h3o)+alk_h2s/(k1_h2s+h3o)+k_water/(h3o*h3o)+1-dalkp_dh3o-dalkc_dh3o)
+iterations         = 10
+description        = derivative of residual_alk with respect to pH [mol/kg]
+comment            = h3o = exp(-pH*ln(10))\\so\\dh3o/dpH = -ln(10)*h3o\\dalk/dpH = dalk/dh3o * dh3o/dpH
+***********************
+name               = ph
+temp1              = alk_residual/dalkresidual_dpH
+formula            = ph_temp - temp1 + theta(abs(temp1) - 1)*0.5*temp1
+iterations         = 10
+description        = newly determined pH value [1]
+comment            = Newton iteration to find the zero of residual_alk
+isOutput           = 1
+***********************
+name               = h3o
+formula            = power(10.0,0.0-max(1.0,min(13.0,ph)))
+iterations         = 10
+iterInit           = 1.0e-8
+description        = h3o ion concentration [mol/kg]
+comment            = h3o = [H3O+] + [HSO4-] \\ this is used as a diagnostic tracer, it is calculated from alk_t and dic. If oxonium is \\created, it goes to the virtual tracer h3oplus and modifies alk_t. \\ Solution is limited to a reasonable range since otherwise in river estuaries solution \\takes very long to converge.\\The reason is that the change of alk_water with pH is very shallow at moderate pH and only \\steep at high pH, therefore, newton iteration may suggest a pH which is very very large. \\Limit to pH of 1 to 13.
+isUsedElsewhere    = 1
+***********************
+name               = pco2
+formula            = t_dic / k0_co2 / (1 + k1_co2/h3o + k1_co2*k2_co2/h3o/h3o)
+description        = co2 partial pressure [Pa]
+comment            = The concentration of dissolved co2 is calculated from dic and the pH (given as H3O+ \\concentration). This concentration is divided by the solubility to obtain the partial \\pressure.
+***********************
+name               = schmidtnumber_co2
+formula            = 2068.9 + cgt_temp*((-118.63) + cgt_temp*(2.9311 + cgt_temp*(-0.027)))
+description        = Schmidt number for CO2 surface flux [1]
+vertLoc            = SUR
+***********************
+name               = o2_sat
+formula            = (10.18e0+((5.306e-3-4.8725e-5*cgt_temp)*cgt_temp-0.2785e0)*cgt_temp+cgt_sali*((2.2258e-3+(4.39e-7*cgt_temp-4.645e-5)*cgt_temp)*cgt_temp-6.33e-2))*44.66e0*1e-6
+description        = oxygen saturation concentration [mol/kg]
+comment            = derived from \\www.helcom.fi/Monas/CombineManual2/PartB/AnnexB-\\8Appendix3.pdf\\now found under\\http://www.helcom.fi/groups/monas/CombineManual/AnnexesB/en_\\GB/annex8app3/\\ 1[ml/l] = 44.66e-6 [mmol/m³], max error < +/- 0.15 for t=0\\-36C, s=0-36psu; 1e-6 converts [mmol/m3] to [mol/kg]
+***********************
+name               = schmidtnumber_o2
+formula            = 1929.7 + cgt_temp*((-117.46) + cgt_temp*(3.116 + cgt_temp*(-0.0306)))
+description        = Schmidt number for oxygen surface flux [1]
+vertLoc            = SUR
+***********************
+name               = n2_sat
+temp1              = log((298.15-cgt_temp)/(273.15+cgt_temp))
+temp2              = temp1*temp1
+temp3              = temp2*temp1
+formula            = 1e-6*exp(6.42931 + 2.92704*temp1 + 4.32531*temp2 + 4.69149*temp3 + cgt_sali*(0.0 -7.44129e-3 - 8.02566e-3*temp1 - 1.46775e-2*temp2))
+description        = dissolved molecular nitrogen saturation concentration [mol/kg]
+comment            = Hamme, R.C., Emerson, S.R., 2004. The solubility of neon, nitrogen and argon in distilled \\water and seawater. Deep Sea Res I Oceanogr Res Pap. 51 (11), 1517–1528.
+***********************
+name               = schmidtnumber_n2
+formula            = 2206.1 + cgt_temp*((-144.86) + cgt_temp*(4.5413 + cgt_temp*(-0.056988)))
+description        = Schmidt number for oxygen surface flux [1]
+comment            = source unclear
+vertLoc            = SUR
+***********************
+name               = temp_sq
+formula            = max(0.0,cgt_temp)*max(0.0,cgt_temp)
+description        = square of positive temperature [°C * °C]
+***********************
+name               = zoo_eff
+formula            = t_zoo*t_zoo/zoo_cl
+description        = effectice zooplankton concentration assumed for mortality and respiration process [mol/kg]
+***********************
+name               = din
+formula            = t_no3+t_nh4
+description        = dissolved inorganic nitrogen [mol/kg]
+***********************
+name               = po4_sq
+formula            = t_po4*t_po4
+description        = squared phosphate [mol**2/kg**2]
+***********************
+name               = pp
+formula            = t_lpp+t_spp+t_cya
+description        = total phytoplankton [mol/kg]
+***********************
+name               = lpp_plus_lpp0
+formula            = t_lpp+lpp0
+description        = large-cell phytoplankton plus seed concentration [mol/kg]
+***********************
+name               = spp_plus_spp0
+formula            = t_spp+spp0
+description        = small-cell phytoplankton plus seed concentration [mol/kg]
+***********************
+name               = cya_plus_cya0
+formula            = t_cya+cya0
+description        = diazotroph cyanobacteria plus seed concentration [mol/kg]
+***********************
+name               = food_zoo
+formula            = t_lpp+t_spp+0.5*t_cya
+description        = suitable food for zooplankton (weighted with food preferences) [mol/kg]
+***********************
+name               = lim_light_lpp
+formula            = cgt_light/max(cgt_light/2.0,light_opt_lpp)*exp(1-cgt_light/max(cgt_light/2.0,light_opt_lpp))
+description        = light limitation factor for large-cell phytoplankton growth [1]
+***********************
+name               = lim_light_spp
+temp1              = max(cgt_light/2.0,light_opt_spp)
+formula            = cgt_light/temp1*exp(1-cgt_light/temp1)
+description        = light limitation factor for small-cell phytoplankton growth [1]
+***********************
+name               = lim_light_cya
+formula            = cgt_light/max(cgt_light/2.0,light_opt_lpp)*exp(1-cgt_light/max(cgt_light/2.0,light_opt_lpp))
+description        = light limitation factor for diazotroph cyanobacteria growth [1]
+***********************
+name               = erosion_is_active
+formula            = theta(cgt_current_wave_stress - critical_stress)
+description        = switch (1=erosion, 0=no erosion) which depends on the combined bottom stress of currents and waves
+vertLoc            = SED
+***********************
+name               = mycellheight
+formula            = cgt_cellheight
+description        = 
+isOutput           = 1
+***********************
+name               = mydensity
+formula            = cgt_density
+description        = 
+isOutput           = 1
+***********************
+name               = viscosity
+temp1              = 1000.0*cgt_bottomdepth*9.81
+temp2              = temp1*1e-5
+formula            = (1.7910-6.122e-2*cgt_temp+1.4510e-3*cgt_temp*cgt_temp-1.6826e-5*cgt_temp*cgt_temp*cgt_temp-1.5290e-4*temp2+8.3885e-8*temp2*temp2+2.4727e-3*cgt_sali+6.0574e-6*cgt_temp*temp2-2.6760e-9*cgt_temp*temp2*temp2+4.8429e-5*cgt_temp*cgt_sali-4.7172e-6*cgt_temp*cgt_temp*cgt_sali+7.5986e-8*cgt_temp*cgt_temp*cgt_temp*cgt_sali)*0.001
+description        = dynamic molecular viscosity of seawater [Pa*s]
+comment            = temp1 is pressure in Pa, temp2 is pressure in bar\\Formula in [Boudreau: Diagenetic Models and Their Implementation (page \\94), Springer] is given in centipoise, so we have to divide by 1000 to get Pa*s.\\Divide this by density to get m2/s.
+vertLoc            = SED
+***********************
+name               = molDiff_dic
+formula            = 5.06e-10+2.75e-11*cgt_temp
+description        = molecular diffusivity of dic [m2/s]
+comment            = Used value for HCO3- from Boudreau: Diagenetic Models and Their Implementation (page \\116), Springer
+vertLoc            = SED
+***********************
+name               = molDiff_h2s
+formula            = 1.04e-9+2.73e-11*cgt_temp
+description        = molecular diffusivity of h2s [m2/s]
+comment            = Used value for HS- from Boudreau: Diagenetic Models and Their Implementation (page \\116), Springer
+vertLoc            = SED
+***********************
+name               = molDiff_no3
+formula            = 9.50e-10+3.88e-11*cgt_temp
+description        = molecular diffusivity of no3 [m2/s]
+comment            = Boudreau: Diagenetic Models and Their Implementation (page \\116), Springer
+vertLoc            = SED
+***********************
+name               = molDiff_po4
+formula            = (3.26e-10+1.77e-11*cgt_temp)*1.0/(1.0+2.0)
+description        = molecular diffusivity of po4, reduced by adhesion to particles [m2/s]
+comment            = Used value for HPO4 2- from Boudreau: Diagenetic Models and Their Implementation \\(page 116), Springer\\Adhesion coefficient after Berner: Early Diagenesis, a theoretical approach (Page 77), Princeton University Press
+vertLoc            = SED
+***********************
+name               = molDiff_ohminus
+formula            = 25.9e-10+10.94e-11*cgt_temp
+description        = molecular diffusivity of hydroxide ions [m2/s]
+vertLoc            = SED
+***********************
+name               = molDiff_nh4
+formula            = (9.50e-10+4.13e-11*cgt_temp)*1.0/(1.0+1.3)
+description        = molecular diffusivity of nh4, reduced by adhesion to particles [m2/s]
+comment            = Boudreau: Diagenetic Models and Their Implementation (page 115), Springer\\Adhesion coefficient after Berner: Early Diagenesis, a theoretical approach (Page 77), Princeton University Press
+vertLoc            = SED
+***********************
+name               = molDiff_so4
+formula            = 4.88e-10+2.32e-11*cgt_temp
+description        = molecular diffusivity of po4, reduced by adhesion to particles [m2/s]
+comment            = Used value for SO4 2- from Boudreau: Diagenetic Models and Their Implementation \\(page 116), Springer
+vertLoc            = SED
+***********************
+name               = molDiff_fe2
+formula            = 3.31e-10+1.50e-11*cgt_temp
+description        = molecular diffusivity of Fe2+ [m2/s]
+comment            = from Boudreau: Diagenetic Models and Their Implementation \\(page 115), Springer
+vertLoc            = SED
+***********************
+name               = sulfate
+formula            = 8.01616e-4*cgt_sali-t_h2s-t_sul
+description        = approximated sulfate concentration [mol/kg]
+comment            = Sea salt contains 7.7% of weight Sulfate.\\Molar weight of Sulfate is 32.06+4*15.999=96.056 g/mol\\So 1 g/kg salt means 0.077 g/kg of sulfate, equivalent to 8.01616E-4 mol/kg.\\If h2s or sul exist, we assume that sulfate is missing.
+***********************
+name               = sed_resp
+formula            = p_sed_$t_sed_resp_nh4
+calcAfterProcesses = 1
+description        = respiration of sediment detritus [mol/m2/d]
+vertLoc            = SED
+***********************
+name               = sed_denit
+formula            = p_sed_$t_sed_denit_nh4
+calcAfterProcesses = 1
+description        = denitrification of sediment detritus [mol/m2/d]
+vertLoc            = SED
+***********************
+name               = sed_sulf
+formula            = p_sed_$t_sed_sulf_nh4
+calcAfterProcesses = 1
+description        = sulfate reduction of sediment detritus [mol/m2/d]
+vertLoc            = SED
+***********************
+name               = t_sed
+formula            = t_sed_$t_sed
+description        = total sediment detritus [mol/m2]
+vertLoc            = SED
+isOutput           = 1
+***********************
+name               = decay_of_t_sed
+formula            = p_sed_$t_sed_resp_nh4 + p_sed_$t_sed_denit_nh4 + p_sed_$t_sed_sulf_nh4
+calcAfterProcesses = 1
+description        = decay of sedimentary detritus [mol/m2/d]
+vertLoc            = SED
+***********************
+name               = oh
+formula            = power(10.0,log(k_water)/log(10.0)+max(1.0,min(13.0,ph)))
+description        = h3o ion concentration [mol/kg]
+comment            = used for oxidation of iron(II)
+***********************
+name               = k1_h2s_sed
+formula            = exp( -3131.42/temp_k - 5.818 + 0.368*(power(max(0.0,cgt_sali),(1.0/3.0))))
+description        = Acid dissociation constant H2S + H2O <-> HS- + H3O+ [mol/kg]
+vertLoc            = SED
+***********************
+name               = ihs_min_sed_irred_2d
+formula            = ihs_min_sed_irred*cgt_cellheight*cgt_density
+description        = iron hydroxide half-saturation constant converted to [mol/m2]
+***********************
+name               = mos_min_sed_irred_2d
+formula            = mos_min_sed_irred*cgt_cellheight*cgt_density
+description        = manganese oxide half-saturation constant converted to [mol/m2]
+***********************
+name               = fe3
+formula            = t_ipw+t_ihw
+description        = sum of iron-III [mol/kg]
+***********************
+name               = fe3_sed
+formula            = t_ips+t_ihs
+description        = sum of Fe-III in the sediment [mol/m2]
+vertLoc            = SED
+***********************
+name               = fe2_sed
+formula            = t_ims + t_pyr + t_iim
+description        = total iron-II in the sediment
+vertLoc            = SED
+***********************
+name               = diag_inert_deposition
+formula            = mar/(dbd*1000)/365.25/24/3600
+description        = depostion of solids in the sediment [m/s]
+***********************
+name               = po4_eq_ips
+formula            = power(max(t_ips/max(t_ips+t_ihs,epsilon)/0.201 - 1.483 + 0.157*pH,0.0),2.0)/1000.0
+description        = theoretical phosphate concentration in equilibrium with iron phosphate in the sediments [mol/kg]
+comment            = Lijklema 1980: Interaction of Orthophosphate with Iron(III) and Aluminum Hydroxides
+***********************
+name               = po4_eq_ipw
+formula            = power(max(t_ipw/max(t_ipw+t_ihw,epsilon)/0.201 - 1.483 + 0.157*pH,0.0),2.0)/1000.0
+description        = theoretical phosphate concentration in equilibrium with iron phosphate in the water [mol/kg]
+***********************
+name               = molDiff_ca2
+formula            = 3.60e-10+1.70e-11*cgt_temp
+description        = molecular diffusivity of Ca2+ [m2/s]
+vertLoc            = SED
+***********************
+name               = ionic_strength
+formula            = 0.02*cgt_sali
+description        = ionic strength of the solution [mol/kg]
+comment            = http://www.aqion.de/site/69\\sea water with 35 g/kg has ionic strength of 0.7
+***********************
+name               = dielectric_constant
+temp1              = cgt_sali*(1.707e-2+1.205e-5*cgt_sali+4.058e-9*power(cgt_sali,2.0))
+temp2              = 1.0-0.2551*temp1+5.151e-2*temp1*temp1-6.889e-3*temp1*temp1*temp1
+temp3              = 87.74-0.40008*temp_k+9.398e-4*temp_k*temp_k+1.401e-6*temp_k*temp_k*temp_k
+formula            = temp2*temp3
+description        = dielectric constant of seawater [F/m]
+comment            = Effect of salinity on the dielectric properties of water\\Gadani 2012\\salinity effect ignored\\temp1 is normality of sea water \\temp2 is correction factor for salinity\\temp3 is freshwater dielectric constant\\[http://www.mathworks.com/matlabcentral/fileexchange/26294-calculated-dielectric-\\constant-of-sea-water/content/dielec.m]
+***********************
+name               = po43minus
+formula            = t_po4*k1_po4*k2_po4*k3_po4/alk_po4_denominator
+description        = concentration of PO4--- ions [mol/kg]
+***********************
+name               = calcium
+formula            = 0.000297*sal_for_so4
+description        = default sea water calcium concentration [mol/kg]
+comment            = http://www.seafriends.org.nz/oceano/seawater.htm
+***********************
+name               = magnesium
+formula            = 0.0533*sal_for_so4/35.0
+description        = concentration of dissolved magnesium [mol/kg]
+comment            = http://www.seafriends.org.nz/oceano/seawater.htm
+***********************
+name               = fluoride
+formula            = 0.00000194*sal_for_so4
+description        = sea water fluoride concentration [mol/kg]
+***********************
+name               = co2
+formula            = pco2*k0_co2
+description        = CO2 concentration in the surface layer [mol/kg]
+***********************
+name               = solubility_o2
+formula            = o2_sat*4.71265e-5
+description        = solubility of oxygen [mol/kg/Pa]
+comment            = o2_sat gives concentration at pressure of 1 atm = 101325 Pa\\We assume an atmospheric oxygen content of 0.20942\\=> partial pressure of O2 was 21219.4815 Pa\\its inverse is 4.71265e-5 Pa-1
+vertLoc            = SUR
+***********************
+name               = solubility_n2
+formula            = n2_sat * 1.263925e-5
+description        = solubility of molecular nitrogen [mol/kg/Pa]
+comment            = n2sat gives concentration at pressure of 1 atm = 101325 Pa\\We assume an atmospheric nitrogen content of 0.78084\\=> partial pressure of N2 was 79.118,613 Pa\\its inverse is 1.263925e-5 Pa-1
+***********************
+name               = solubility_sil
+formula            = power(10.0,-8.476-485.24/temp_k-2.268e-6*temp_k*temp_k+3.068*log(temp_k)/log(10.0))
+description        = amorphous silica solubility [mol/kg]
+comment            = Gunnarsson and Arnorsson, 2000:\\Amorphous silica solubility and the thermodynamic properties of H4SiO°4 in the range \\of 0° to 350°C at Psat
+***********************
+name               = din_sq
+formula            = din*din
+description        = squared DIN [mol2/kg2]
+***********************
+name               = lr_graz_zoo
+formula            = r_zoo_graz*(1-exp(-food_zoo*food_zoo/(food_min_zoo*food_min_zoo)))*theta(t_o2-2*t_h2s)*(1.0+temp_sq/(temp_opt_zoo*temp_opt_zoo)*exp(2.0-cgt_temp*2.0/temp_opt_zoo))
+description        = growth rate of zooplankton, limited by food, oxygen and temperature [1/day]
+***********************
+name               = lr_assim_cya
+formula            = r_cya_assim*theta(t_o2-2*t_h2s)*min(po4_sq/(po4_sq+dip_min_cya*dip_min_cya),lim_light_spp)*(1/(1+exp(temp_min_cya-cgt_temp)))*(1/(1+exp(cgt_sali-sali_max_cya)))*(1/(1+exp(sali_min_cya-cgt_sali)))
+description        = growth rate of diazotroph cyanobacteria, limited by DIP, light, oxygen, temperature and salinity [1/day]
+***********************
+name               = molDiff_n2
+formula            = 5.620e-15*temp_k/viscosity
+description        = molecular diffusivity of n2 [m2/s]
+comment            = Hayduk and Laudie (1974): Prediction of diffusion \\coefficients for nonelectrolytes in dilute aqueous solutions
+vertLoc            = SED
+***********************
+name               = molDiff_o2
+formula            = 2.604e-10+6.383e-15*temp_k/viscosity
+description        = molecular diffusivity of n2 [m2/s]
+comment            = Boudreau: Diagenetic Models and Their Implementation (page 108), Springer
+vertLoc            = SED
+***********************
+name               = molDiff_alk
+formula            = molDiff_dic
+description        = molecular diffusivity of total alkalinity [m2/s]
+comment            = All components which contribute to alkalinity have a different diffusivity. We have to approximate it.\\Typically we use the same diffusivity as for t_dic. \\But, if pH gets very large, we have enhanced diffusivity because the OH- ions are very quick.\\The same is valid for the HS- ions.
+vertLoc            = SED
+***********************
+name               = mass_fraction_carbon
+formula            = t_sed*rfr_pc_enrichment_det*rfr_c/mycellheight/(1.0-POR)/1000000/DBD*12
+description        = relative fraction of carbon on total mass of dry sediment [1.0]
+vertLoc            = SED
+***********************
+name               = hsminus
+formula            = t_h2s * k1_h2s_sed / (k1_h2s_sed + h3o)
+description        = concentration of HS- ions [mol/kg]
+vertLoc            = SED
+***********************
+name               = k_feo2
+formula            = power(10.0,21.56-1545.0/temp_k-3.29*power(ionic_strength,0.5)+1.52*ionic_strength)
+description        = rate constant iron-II oxidation by o2 [kg3/mol3/d]
+comment            = Millero et al, 1987: The oxidation kinetics of Fe(II) in seawater. Geochimica et \\Cosmochimica Acta 51, 793-801
+***********************
+name               = davies_parameter_a
+formula            = 1.82e6*power(dielectric_constant*temp_k,-1.5)
+description        = parameter A for the Davies formula [mol0.5 l-0.5]
+***********************
+name               = hco3minus
+formula            = co2*k1_co2/h3o
+description        = concentration of HCO3- ions
+***********************
+name               = lr_assim_lpp
+formula            = r_lpp_assim*theta(t_o2-2*t_h2s)*min(din_sq/(din_sq+din_min_lpp*din_min_lpp),min(po4_sq/(po4_sq+din_min_lpp*din_min_lpp*rfr_p*rfr_p),lim_light_lpp))
+description        = growth rate of large-cell phytoplankton, limited by DIN, DIP, light and oxygen [1/day]
+***********************
+name               = lr_assim_spp
+formula            = r_spp_assim*theta(t_o2-2*t_h2s)*min(din_sq/(din_sq+din_min_spp*din_min_spp),min(po4_sq/(po4_sq+din_min_spp*din_min_spp*rfr_p*rfr_p),lim_light_spp))*(1+temp_sq/(temp_sq+temp_min_spp*temp_min_spp))
+description        = growth rate of small-cell phytoplankton, limited by DIN, DIP, light, oxygen and temperature [1/day]
+***********************
+name               = omega_fes
+formula            = t_fe2*hsminus/h3o/ks_fes
+description        = degree of saturation which determines iron monosulfide precipitation [1]
+vertLoc            = SED
+***********************
+name               = activity_coefficient_1
+formula            = power(10.0,0.0-davies_parameter_a*1*(sqrt(ionic_strength)/(1+sqrt(ionic_strength))-0.3*ionic_strength))
+description        = activity to concentration ratio of ions with a charge of +1/-1 [1]
+***********************
+name               = activity_coefficient_2
+formula            = power(10.0,0.0-davies_parameter_a*2*(sqrt(ionic_strength)/(1+sqrt(ionic_strength))-0.3*ionic_strength))
+description        = activity to concentration ratio of ions with a charge of +2/-2 [1]
+***********************
+name               = activity_coefficient_3
+formula            = power(10.0,0.0-davies_parameter_a*9*(sqrt(ionic_strength)/(1+sqrt(ionic_strength))-0.3*ionic_strength))
+description        = activity to concentration ratio of ions with a charge of +3/-3 [1]
+***********************
+name               = co32minus
+formula            = hco3minus*k2_co2/h3o
+description        = concentration of CO3-- ions
+***********************
+name               = activity_hco3minus
+formula            = hco3minus*activity_coefficient_1
+description        = activity of HCO3- ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = activity_fluoride
+formula            = fluoride*activity_coefficient_1
+description        = activity of F- ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = activity_ohminus
+formula            = oh*activity_coefficient_1
+description        = activity of OH- ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = activity_h3oplus
+formula            = h3o*activity_coefficient_1
+description        = activity of H3O+ ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = activity_fe2
+formula            = t_fe2*activity_coefficient_2
+description        = activity of Fe++ ions (concentration corrected by ionic strength) [mol/kg]
+comment            = http://www.aqion.de/site/101
+***********************
+name               = activity_calcium
+formula            = calcium*activity_coefficient_2
+description        = activity of Ca++ ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = activity_po43minus
+formula            = po43minus*activity_coefficient_3
+description        = activity of PO4--- ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = activity_co32minus
+formula            = co32minus*activity_coefficient_2
+description        = activity of CO3-- ions (concentration corrected by ionic strength) [mol/kg]
+***********************
+name               = sil_max_illite
+temp1              = pH
+temp2              = 0.0-log(magnesium*activity_coefficient_2)/log(10.0)
+formula            = power(10.0,-2.0-0.3067*(temp1-0.5*temp2))
+description        = silicate concentration [mol/kg]
+vertLoc            = SED
+***********************
+name               = i3i_max
+temp1              = 2.7 * vol_fraction_im*(1.0-POR)
+temp2              = temp1*fe_content_im
+temp3              = temp2/55.0
+formula            = temp3 * 1000 * cgt_cellheight*cgt_density
+description        = amount of structural iron in illite-montmorillonite mixed-layer minerals that can be oxidized or reduced [mol/m2]
+comment            = temp1 is DBD of illite-montmorillonite mixed layer minerals [g/cm3]\\temp2 is DBD of potentially reducible/oxidizable Fe in them\\temp3 is [mol/cm3] of them
+***********************
+name               = saturation_ims
+formula            = t_fe2*activity_coefficient_2*hsminus*activity_coefficient_1/activity_h3oplus/power(10.0,-2.95)
+description        = relative saturation of iron monosulfide [1]
+vertLoc            = SED
+***********************
+name               = saturation_rhodochrosite
+formula            = t_mn2*activity_coefficient_2*activity_co32minus/power(10.0,-9.5)
+description        = relative saturation of rhodochrosite [1]
+comment            = Last number is the effective solubility product we assume (including the effect of supersaturation)\\A value between -9.0 and -9.5 can be deduced from Fig.8 in Jakobsen and Postma: Formation and solid solution behaviour of Ca-rhodochrosites in marine muds of the Baltic deeps \\where supersaturation is shown for Baltic sediments.\\If supersaturation is not taken into account, smaller values arise, see Jensen, D.L., Boddum, J.K., Tjell, J.C., Christensen, T.H., 2002. The solubility of rhodochrosite \\(MnCO3) and siderite (FeCO3) in anaerobic aquatic environments. Applied Geochemistry 17, \\503-511. doi:10.1016/S0883-2927(01)00118-4\\A range from -9.47 to -12.51 is reported there\\From Jakobsen and Postma, we can also deduce that the Ca:Mn ratio of rhodochrosites \\in the Baltic is as high as approx. 0.6 (see Fig. 9)
+***********************
+name               = saturation_iim
+temp1              = 2.7 * vol_fraction_im*(1.0-POR)
+formula            = t_fe2/((max(t_iim,epsilon)/cgt_cellheight/cgt_density)/(100*temp1))
+description        = relative saturation of iron-II to be adsorbed on illite-montmorillonite mixed-layer minerals [1]
+comment            = First term in denominator converts adsorbed iron to mol/kg\\Second term gives ratio sorbed/dissolved = 1000 cm3/g * DBD of illite-montmorillonite \\mixed layer minerals\\DBD of them (=temp1) is approximately given by volume fraction of minerals times \\density of 2.7\\Factor 1000 cm3/g is approximate value derived from Table 3 in \\Jaisi, D.P., Dong, H., Liu, C., 2007. Influence of biogenic Fe (II) on the extent of \\microbial reduction of Fe (III) in clay minerals nontronite, illite, and chlorite. \\Geochimica et Cosmochimica Acta 71, 1145-1158.
+vertLoc            = SED
+***********************
+name               = ims_dissolution_rate
+formula            = r_ims_diss*theta(1.0-saturation_ims)*(1.0-saturation_ims)*cgt_cellheight*cgt_density
+description        = dissolution rate of iron monosulfide [mol/m2/d]
+vertLoc            = SED
+***********************
+name               = iim_dissolution_rate
+formula            = r_iim_diss*theta(1.0-saturation_iim)*(1.0-saturation_iim)*cgt_cellheight*cgt_density
+description        = desorption rate of iron adsorbed to illite-minnesotaite mixed-layer minerals [mol/m2/d]
+vertLoc            = SED
+***********************
+name               = fe2_eq_ims
+formula            = power(10.0,-2.95)*activity_h3oplus/max(hsminus*activity_coefficient_1,1.0e-3*epsilon)/activity_coefficient_2
+description        = Fe-II concentration in equilibrium with iron monosulfide precipitation [mol/kg]
+comment            = Solubility product K_sp=10^2.95 taken from\\Theberge, S.M., Iii, G.W.L., 1997. Determination of the Electrochemical Properties of \\a Soluble Aqueous FeS Species Present in Sulfidic Solutions. Aquatic Geochemistry 3, \\191-211. \\doi:10.1023/A:1009648026806\\Also found in \\Morse, J.W., Millero, F.J., Cornwell, J.C., Rickard, D., 1987. The chemistry of the \\hydrogen sulfide and iron sulfide systems in natural waters. Earth-Science Reviews \\24, 1-42. doi:10.1016/0012-8252(87)90046-8
+vertLoc            = SED
+***********************
+name               = fe2_eq_iim
+temp1              = 2.7 * vol_fraction_im*(1.0-POR)
+formula            = (max(t_iim,epsilon)/cgt_cellheight/cgt_density)/(100*temp1)+1000*(1.0-cgt_in_sediment)
+description        = Fe-II concentration in equilibrium with iron adsorbed to illite-montmorillonite mixed layer minerals [mol/kg]
+comment            = First term in denominator converts adsorbed iron to mol/kg\\Second term gives ratio sorbed/dissolved = 1000 cm3/g * DBD of illite-montmorillonite \\mixed layer minerals\\DBD of them (=temp1 [g/cm3 approx kg/kg]) is approximately given by volume fraction \\of minerals times \\density of 2.7\\Factor 1000 cm3/g is approximate value derived from Table 3 in \\Jaisi, D.P., Dong, H., Liu, C., 2007. Influence of biogenic Fe (II) on the extent of \\microbial reduction of Fe (III) in clay minerals nontronite, illite, and chlorite. \\Geochimica et Cosmochimica Acta 71, 1145-1158.
+vertLoc            = SED
+***********************
+name               = fe2_ims_is_smallest
+formula            = theta(fe2_eq_iim-fe2_eq_ims)
+description        = siderite is the favoured species for precipitation (0 or 1) [1]
+vertLoc            = SED
+***********************
+name               = fe2_iim_is_smallest
+formula            = theta(fe2_eq_ims-fe2_eq_iim)
+description        = minnesotaite is the favoured species for precipitation (0 or 1) [1]
+vertLoc            = SED
+***********************
+name               = ph_inhibition_ironred
+formula            = 1.0+0.0*(theta(pH_opt_ironred-pH)+theta(pH-pH_opt_ironred)*max((pH_max_ironred-pH)/(pH_max_ironred-pH_opt_ironred),0.0))
+description        = factor for inhibition of iron / sulfate reduction at large pH [1]
+comment            = iron reduction and sulfate reduction are inhibited by large pH values,\\as most bacteria do not like them.\\Cypionka, H., 1989. Characterization of sulfate transport in Desulfovibrio \\desulfuricans. Archives of microbiology 152, 237-243.
+***********************
+name               = mass_fraction_iron
+formula            = (t_ihs+t_ips+t_ims+t_pyr+t_iim+i3i_max)/mycellheight/(1.0-POR)/1000000/DBD*55
+description        = relative fraction of iron on total mass of dry sediment [1.0]
+***********************
+name               = reduction_of_iron
+formula            = p_sed_$t_sed_irred_ims+p_sed_$t_sed_irredips_ims+p_sed_$t_sed_irred_iim+p_sed_$t_sed_irredips_iim+p_i3i_$t_sed_irred_i2i
+calcAfterProcesses = 1
+description        = total rate of PON decomposition by iron reduction [mol/m2/d]
+vertLoc            = SED
+isOutput           = 1
+***********************
+name               = reduction_of_oxygen
+formula            = p_sed_$t_sed_resp_nh4
+calcAfterProcesses = 1
+description        = total rate of PON decomposition by oxygen reduction [mol/m2/d]
+vertLoc            = SED
+isOutput           = 1
+***********************
+name               = reduction_of_nitrate
+formula            = p_sed_$t_sed_denit_nh4
+description        = total rate of PON decomposition by nitrate reduction [mol/m2/d]
+isOutput           = 1
+***********************
+name               = reduction_of_sulfate
+formula            = p_sed_$t_sed_sulf_nh4
+calcAfterProcesses = 1
+description        = total rate of PON decomposition by sulfate reduction [mol/m2/d]
+vertLoc            = SED
+isOutput           = 1
+***********************
+name               = reduction_of_manganese
+formula            = p_sed_$t_sed_mnred_mn2
+calcAfterProcesses = 1
+description        = total rate of PON decomposition by manganese reduction [mol/m2/d]
+vertLoc            = SED
+isOutput           = 1
+***********************
+name               = hss_eq
+temp1              = (1-por)*cgt_cellheight*cgt_density*1000*0.0
+temp2              = 4.0
+temp3              = 10.0
+temp4              = 5.0e-5
+formula            = min(1.0,max((temp3-pH)/(temp3-temp2),0.0))*temp1*temp4
+description        = hydrogen bound to sheet silicates in equilibrium with ambient pH [mol/m2]
+comment            = temp1 is the amount of sheet silicates in the current layer [g/m2], the last number \\gives the mass fraction of sheet silicates\\temp2 is the minimum pH\\temp3 is the maximum pH\\temp4 is the concentration of adsorption sites [mol/g]\\temp2-temp4 are taken from\\Wanner, H., Albinsson, Y., Karnland, O., Wieland, E., Charlet, L., Wersin, P., 1994. \\The acid/base chemistry of montmorillonite. Radiochimca Acta 66, 157-162.
+vertLoc            = SED
+***********************
+name               = production_of_fe2
+formula            = reduction_of_iron*rfr_c*rfr_pc_enrichment_det*4.0/cgt_cellheight/cgt_density
+description        = production of Fe2+ by Fe3+ reduction [mol/kg/d]
+comment            = Per carbon atom, 4 electrons are donated.
+vertLoc            = SED
+***********************
+name               = fe2_eq
+formula            = fe2_ims_is_smallest*fe2_eq_ims+fe2_iim_is_smallest*fe2_eq_iim
+description        = Fe-II concentration in equilibrium with the fastest precipitating Fe species
+vertLoc            = SED
+***********************
+name               = fe2_smooth
+temp1              = 3.0e-6
+formula            = fe2_eq
+description        = smoother value for fe2_eq [mol/kg]
+comment            = temp1 is the production rate of Fe2+ at which no supersaturation occurs [mol/kg/d].\\If the production is higher, Fe2+ concentration is raised proportionally.\\(fe2_mag_is_smallest*fe2_eq_mag+(1.0-fe2_mag_is_smallest)*((t_ihs\\+t_ips)/mycellheight/mydensity/ihs_min_sed_irred*fe2_eq_mag+(1.0-(t_ihs\\+t_ips)/mycellheight/mydensity/ihs_min_sed_irred)*fe2_eq))*\\(temp1+production_of_fe2)/temp1
+vertLoc            = SED
+***********************
+name               = fe2_who_is_smallest
+formula            = 4.0*fe2_ims_is_smallest+5.0*fe2_iim_is_smallest
+description        = 
+vertLoc            = SED
+***********************
+name               = molDiff_sil
+formula            = 0.5e-9
+description        = molecular diffusivity of silicate
+comment            = Bodreau et al. Diagenetic Models and their Implementation, page 110
+vertLoc            = SED
+***********************
+name               = pim_max
+temp1              = 2.7 * vol_fraction_im*(1.0-POR)
+temp2              = temp1*p_content_im
+temp3              = temp2/55.0
+formula            = temp3 * 1000 * cgt_cellheight*cgt_density
+description        = amount of phosphate that can be maximally adsorbed to illite-montmorillonite mixed-layer minerals [mol/m2]
+comment            = temp1 is DBD of illite-montmorillonite mixed layer minerals [g/cm3]\\temp2 is DBD of potentially adsorbable PO4 in them\\temp3 is [mol/cm3] of it
+vertLoc            = SED
+***********************
+name               = pim_eq
+formula            = pim_max*min(1.0,t_po4/max(po4_ads_pim,epsilon))
+description        = pim in equilibrium with po4 concentration
+vertLoc            = SED
+***********************
+name               = aim_max
+temp1              = 2.7 * vol_fraction_im*(1.0-POR)
+temp2              = temp1*n_content_im
+temp3              = temp2/18.0
+formula            = temp3 * 1000 * cgt_cellheight*cgt_density
+description        = amount of phosphate that can be maximally adsorbed to illite-montmorillonite mixed-layer minerals [mol/m2]
+vertLoc            = SED
+***********************
+name               = aim_eq
+formula            = aim_max*min(1.0,t_nh4/max(nh4_ads_aim,epsilon))
+description        = aim in equilibrium with po4 concentration
+vertLoc            = SED
+***********************
+name               = pyr_conc_pw
+formula            = t_pyr/cgt_cellheight/cgt_density/POR
+description        = pyrite concentration if all was dissolved in the pore water [mol/kg]
+vertLoc            = SED
+***********************
+name               = iim_conc_pw
+formula            = t_iim/cgt_cellheight/cgt_density/POR
+description        = potential iron-II adsorbed to illite-montmorillonite mixed-layer minerals concentration if all was dissolved in the pore water [mol/kg]
+vertLoc            = SED
+***********************
+name               = ihs_conc_pw
+formula            = t_ihs/cgt_cellheight/cgt_density/POR
+description        = potential amorphous iron hydroxide concentration if all was dissolved in the pore water [mol/kg]
+vertLoc            = SED
+***********************
+name               = ihc_conc_pw
+formula            = t_ihc/cgt_cellheight/cgt_density/POR
+description        = potential crystalline iron hydroxide concentration if all was dissolved in the pore water [mol/kg]
+vertLoc            = SED
+***********************
+name               = mos_conc_pw
+formula            = t_mos/cgt_cellheight/cgt_density/POR
+description        = potential manganese oxide concentration if all was dissolved in the pore water [mol/kg]
+vertLoc            = SED
+***********************
+name               = ims_conc_pw
+formula            = t_ims/cgt_cellheight/cgt_density/POR
+description        = potential iron monosulfide concentration if all was dissolved in the pore water [mol/kg]
+vertLoc            = SED
+***********************
+name               = sulmiss
+formula            = (8.01616e-4*sal_for_so4-t_so4)/(8.01616e-4*sal_for_so4)
+description        = relative fraction of sulfate that is missing to saturation
+isOutput           = 1
+***********************
+name               = accrate_det_$t_det
+formula            = 0.0;0.0;accratedet;accratedet;accratedet;accratedet
+description        = accumulation ratio of detritus [1]
+***********************

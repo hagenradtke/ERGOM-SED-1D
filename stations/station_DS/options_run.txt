@@ -1,0 +1,13 @@
+Options file for a 1-d model run
+start date:
+01.01.1964
+end date:
+01.01.1965
+repeated runs:
+100
+timestep [days]:
+0.5
+output interval [days]:
+10.0
+Runge-Kutta depth (1=pEf, 2=pRK, default=1)
+1

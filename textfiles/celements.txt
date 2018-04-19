@@ -1,0 +1,24 @@
+! BioCGT CElements file
+! *********************
+! properties of CElements: (colored elements to be traced)
+! element=         internal name of element, e.g., "N"
+! color=           e.g. "red", may not contain spaces
+! description=     e.g. "nitrogen from Oder river", default=""
+! atmosDep=        1=atmospheric deposition of marked tracers may occur, 0=not (default)
+! isAging=         1=accumulates time since entering the system, 0=does not (default)
+! isTracer=        1=store total Element content in a separate tracer, 0=do not (default)
+!                  setting isAging=1 implies isTracer=1
+! riverDep=        1=river deposition of marked tracers may occur, 0=not (default)
+! longname_prefix= prefix to be prepended to a tracers longname when painted; only applied
+!                  when tracer-based naming convention is acitve (default); default: ""
+! longname_suffix  suffix to be appended to a tracers longname when painted; only applied
+!                  when tracer-based naming convention is acitve (default);
+!                  default: "" (longname gets same suffix as name)
+! comment=         any comments
+! *************************************************************************************
+element         = N
+color           = blue
+description     = Oder N
+isAging         = 1
+isTracer        = 1
+***********************

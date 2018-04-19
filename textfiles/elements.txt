@@ -1,0 +1,40 @@
+! BioCGT elements file
+! ********************
+! properties of elements:
+!   name=           internal name used, e.g. "N"
+!   description=    e.g. "nitrogen"
+!   comment=        any comments
+! *************************************************************************************
+name        = N
+description = nitrogen
+***********************
+name        = P
+description = phosphorus
+***********************
+name        = C
+description = carbon
+***********************
+name        = O
+description = oxygen
+***********************
+name        = H
+description = hydrogen
+***********************
+name        = Fe
+description = iron
+***********************
+name        = S
+description = sulfur
+***********************
+name        = ch
+description = electrical charge
+***********************
+name        = Ca
+description = calcium
+***********************
+name        = Mn
+description = Manganese
+***********************
+name        = Si
+description = silicon
+***********************

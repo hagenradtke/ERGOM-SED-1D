@@ -1,0 +1,38 @@
+! BioCGT ModelInfos file
+! **********************
+! properties of ModelInfos:
+! name=               bio-model short name or abbreviation
+! description=        bio-model long name
+! version=            bio-model version
+! author=             bio-model author(s)
+! contact=            e.g. e-mail adress of bio-model author
+! ageEpsilon=         small value used for preventing zero division for age calculation; default="1.0e-20"
+! autoBurialFluxes=   1=auto-generate fluxes for burial of colored elements with isTracer=1; 0=do not (default)
+! autoLimitProcesses= 1=add limitations to all processes that stop them when one of their precursors with isPositive=1 becomes zero (default); 0=do not
+! autoMassClassProp=  0=manual mass-class propagation processes (default); 1=mass-class propagation when upper mass limit is reached; 2=advanced propagation; 3=age-class propagation at beginning of each year
+! autoSortMoving=     1=sort tracers: not vertically moving first, then vertically moving; 0=do not (default)
+! autoSplitColors=    1=split tracers and processes according to colored elements (default); 0=do not
+! autoUnixOutput=     1=enforce Unix line-feed output on Windows systems; 0=do not (default)
+! autoWrapF=          1=auto-wrap too long lines in all files with ".f" or ".F" extension (default); 0=do not
+! autoWrapF90=        1=auto-wrap too long lines in all files with ".f90" or ".F90" extension; 0=do not (default)
+! realSuffixF90=      e.g. "8", appends a suffix (e.g. _8) to all real values in .f90 files which do not yet contain a suffix (do not include the underscore here); default=' meaning no suffix is added.
+! debugMode=          1=debug mode (output of all values); 0=output only of those values with output=1 (default)
+! inactiveProcessTypes= semicolon-separated list of process types that are set inactive, e.g. because they are represented in the host model, e.g. "gas_exchange; sedimentation; resuspension"
+! numPhysicalParametersVarying= number of physical parameters that are allowed to vary in an inverse-modelling approach (default=0)
+! outputPath=         path where to write the output files
+! templatePath=       path to the code template files
+! comment=            comments about the current model version
+!
+! use ! for comments
+! *************************************************************************************
+name              = ERGOM
+version           = SED 1.0
+description       = Ecological ReGional Ocean Model with vertically resolved sediment
+author            = Dr. Thomas Neumann, Dr. Martin Schmidt, Dr. Hagen Radtke
+contact           = thomas.neumann@io-warnemuende.de, hagen.radtke@io-warnemuende.de
+templatePath      = 
+outputPath        = 
+autoSplitColors   = 0
+autoWrapF90       = 1
+autoUnixOutput    = 1
+numPhysicalParametersVarying = 35

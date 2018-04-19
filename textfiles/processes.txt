@@ -1,0 +1,833 @@
+! BioCGT processes file
+! *********************
+! properties of processes:
+! name=           fortran variable name for the rate
+! description=    e.g. "grazing of zooplankton"
+! turnover=       fortran formula for calculating the process turnover [mol/kg or mol/m2]
+! equation=       equation which, like a chemical equation, lists reaction agents and products of this process.
+!                   example: t_no3 + 1/16*t_po4 -> t_lpp
+!                   tracers to the left of the "->" are consumed, tracers to the right of the "->" are produced by this process.
+! feedingEfficiency= name of an auxiliary variable (values 0..1) which tells how much of the food in a certain depth is accessible for the predator with vertLoc=FIS. Relevant for vertLoc=FIS only. Default="1.0"
+! isActive=       1=active (default); 0=process is switched off
+! isOutput=       1=occurs as output in model results; 0=internal use only (default)
+! limitation=     TYPE tracer > value else otherProcess
+! limitation=     TYPE tracer < value else otherProcess
+!                   TYPE = HARD (theta function), MM (Michaelis-Menten), MMQ (quadratic Michaelis-Menten), IV (Ivlev), IVQ (quadratic Ivlev), LIN (linear), TANH (tangens hyperbolicus)
+!                   tracer = name of tracer that needs to be present
+!                   value = value that needs to be exceeded, may also be a constant or auxiliary
+!                   otherProcess = process that takes place instead if this process gets hampered by the availability of "tracer"
+!                 several of these lines may exist, the order of them may be relevant for the rate of "otherProcess".
+! processType=    type of process, e.g. "propagation", default="standard"
+! repaint=        number n of repainting actions to be done by the process, default=0
+!                 This line is followed by n lines of this kind:
+!   <oldColor> <element> = <newColor>    e.g.: "all  N   = blue "
+!                                              "blue P   = none "
+!                                              "red  all = green"
+! vertLoc=        WAT=z-dependent (default), SED=in the sediment only, SUR=in the surface only, FIS=fish-type behaviour
+! comment=        comment, default=""
+!
+! Process rates are calculated in the given order.
+! *************************************************************************************
+name        = p_n2_stf_down
+description = downward nitrogen flux through the surface
+turnover    = w_n2_stf*(n2_sat-t_n2)*theta(n2_sat-t_n2)*cgt_density
+comment     = relaxation of nitrogen concentration against saturation at surface using \\piston-velocity, downward oxygen flow
+equation    =  -> t_n2
+vertLoc     = SUR
+processType = gas_exchange
+***********************
+name        = p_n2_stf_up
+description = upward nitrogen flux through the surface
+turnover    = w_n2_stf*(t_n2-n2_sat)*theta(t_n2-n2_sat)*cgt_density
+comment     = relaxation of nitrogen concentration against saturation at surface using piston-velocity, upward oxygen flow
+equation    = t_n2 -> 
+vertLoc     = SUR
+processType = gas_exchange
+***********************
+name        = p_o2_stf_down
+description = downward oxygen flux through the surface
+turnover    = w_o2_stf*(o2_sat-t_o2)*theta(o2_sat-t_o2)*cgt_density
+comment     = relaxation of oxygen concentration against saturation at surface using piston-velocity, downward oxygen flow
+equation    =  -> t_o2
+vertLoc     = SUR
+processType = gas_exchange
+***********************
+name        = p_o2_stf_up
+description = upward oxygen flux through the surface
+turnover    = w_o2_stf*(t_o2-o2_sat)*theta(t_o2-o2_sat)*cgt_density
+comment     = relaxation of oxygen concentration against saturation at surface using piston-velocity, upward oxygen flow
+equation    = t_o2 -> 
+vertLoc     = SUR
+processType = gas_exchange
+***********************
+name        = p_co2_stf_down
+description = downward co2 flux through the surface
+turnover    = w_co2_stf*(patm_co2-pco2)*k0_co2*theta(patm_co2-pco2)*cgt_density
+comment     = relaxation of co2 concentration against saturation at surface using piston-velocity, downward co2 flow
+equation    =  -> t_dic
+vertLoc     = SUR
+processType = gas_exchange
+***********************
+name        = p_co2_stf_up
+description = upward co2 flux through the surface
+turnover    = w_co2_stf*(pco2-patm_co2)*k0_co2*theta(pco2-patm_co2)*cgt_density
+comment     = relaxation of co2 concentration against saturation at surface using piston-velocity, upward co2 flow
+equation    = t_dic -> 
+vertLoc     = SUR
+processType = gas_exchange
+***********************
+name        = p_no3_assim_lpp
+description = assimilation of nitrate by large-cell phytoplankton
+turnover    = lpp_plus_lpp0*lr_assim_lpp*t_no3/(din+epsilon)*theta(cgt_dayofyear-60.0)*theta(200.0-cgt_dayofyear)
+equation    = t_no3 + rfr_p*t_po4 + rfr_c*t_dic + 6.4375*h2o + 1.1875*h3oplus -> t_lpp + 8.625*t_o2
+***********************
+name        = p_nh4_assim_lpp
+description = assimilation of ammonium by large-cell phytoplankton
+turnover    = lpp_plus_lpp0*lr_assim_lpp*t_nh4/(din+epsilon)*theta(cgt_dayofyear-60.0)*theta(200.0-cgt_dayofyear)
+equation    = 7.4375*h2o + rfr_c*t_dic + rfr_p*t_po4 + t_nh4 -> 0.8125*h3oplus + 6.625*t_o2 + t_lpp
+***********************
+name        = p_no3_assim_spp
+description = assimilation of nitrate by small-cell phytoplankton
+turnover    = spp_plus_spp0*lr_assim_spp*t_no3/(din+epsilon)*theta(cgt_dayofyear-60.0)*theta(200.0-cgt_dayofyear)
+equation    = t_no3 + rfr_p*t_po4 + rfr_c*t_dic + 6.4375*h2o + 1.1875*h3oplus -> t_spp + 8.625*t_o2
+***********************
+name        = p_nh4_assim_spp
+description = assimilation of ammonium by small-cell phytoplankton
+turnover    = spp_plus_spp0*lr_assim_spp*t_nh4/(din+epsilon)*theta(cgt_dayofyear-60.0)*theta(200.0-cgt_dayofyear)
+equation    = t_nh4 + rfr_p*t_po4 + rfr_c*t_dic + 0*h2o + 7.4375*h2o -> t_spp + 6.625*t_o2 + 0.8125*h3oplus
+***********************
+name        = p_n2_assim_cya
+description = fixation of dinitrogen by diazotroph cyanobacteria
+turnover    = cya_plus_cya0*lr_assim_cya*theta(cgt_dayofyear-60.0)*theta(200.0-cgt_dayofyear)
+equation    = 0.1875*h3oplus + 0.5*t_n2 + rfr_p*t_po4 + rfr_c*t_dic + 7.9375*h2o -> t_cya + 7.375*t_o2
+repaint     = 1
+  all N = blue
+***********************
+name        = p_lpp_graz_zoo
+description = grazing of zooplankton eating large-cell phytoplankton
+turnover    = (t_zoo+zoo0)*lr_graz_zoo*t_lpp/max(food_zoo,epsilon)
+equation    = t_lpp -> t_zoo
+***********************
+name        = p_spp_graz_zoo
+description = grazing of zooplankton eating small-cell phytoplankton
+turnover    = (t_zoo+zoo0)*lr_graz_zoo*t_spp/max(food_zoo,epsilon)
+equation    = t_spp -> t_zoo
+***********************
+name        = p_cya_graz_zoo
+description = grazing of zooplankton eating diazotroph cyanobacteria
+turnover    = (t_zoo+zoo0)*lr_graz_zoo*(0.5*t_cya)/max(food_zoo,epsilon)
+equation    = t_cya -> t_zoo
+***********************
+name        = p_lpp_resp_nh4
+description = respiration of large-cell phytoplankton
+turnover    = t_lpp*r_lpp_resp*(1.0-cgt_in_sediment)
+equation    = 0.8125*h3oplus + 6.625*t_o2 + t_lpp -> 7.4375*h2o + rfr_c*t_dic + rfr_p*t_po4 + (1-don_fraction)*t_nh4 + don_fraction*t_don
+***********************
+name        = p_spp_resp_nh4
+description = respiration of small-cell phytoplankton
+turnover    = t_spp*r_spp_resp*(1.0-cgt_in_sediment)
+equation    = t_spp + 6.625*t_o2 + 0.8125*h3oplus -> don_fraction*t_don + (1-don_fraction)*t_nh4 + rfr_p*t_po4 + rfr_c*t_dic + 7.4375*h2o
+***********************
+name        = p_cya_resp_nh4
+description = respiration of diazotroph cyanobacteria
+turnover    = t_cya*r_cya_resp*(1.0-cgt_in_sediment)
+equation    = t_cya + 6.625*t_o2 + 0.8125*h3oplus -> (1-don_fraction)*t_nh4 + don_fraction*t_don + rfr_p*t_po4 + rfr_c*t_dic + 7.4375*h2o
+***********************
+name        = p_zoo_resp_nh4
+description = respiration of zooplankton
+turnover    = zoo_eff*r_zoo_resp*(1.0-cgt_in_sediment)
+equation    = t_zoo + 6.625*t_o2 + 0.8125*h3oplus -> don_fraction*t_don + (1-don_fraction)*t_nh4 + rfr_p*t_po4 + rfr_c*t_dic + 7.4375*h2o
+***********************
+name        = p_don_rec_nh4
+description = mineralization of DON
+turnover    = t_don*r_don_rec
+equation    = t_don -> t_nh4
+***********************
+name        = p_lpp_mort_det_$t_det
+description = mortality of large-cell phytoplankton
+turnover    = frac_det_$t_det*t_lpp*r_pp_mort*(1+9*theta(5.0e-6-t_o2))
+equation    = t_lpp + (1.0-(1.0/rfr_pc_enrichment_det))*h3oplus -> (1.0/rfr_pc_enrichment_det)*t_detp_$t_det + (1.0/rfr_pc_enrichment_det)*t_det_$t_det + (1.0-(1.0/rfr_pc_enrichment_det))*t_nh4 + (1.0-(1.0/rfr_pc_enrichment_det))*h2o
+***********************
+name        = p_spp_mort_det_$t_det
+description = mortality of small-scale phytoplankton
+turnover    = frac_det_$t_det*t_spp*r_pp_mort*(1+9*theta(5.0e-6-t_o2))
+equation    = t_spp + (1.0-(1.0/rfr_pc_enrichment_det))*h3oplus -> (1.0/rfr_pc_enrichment_det)*t_detp_$t_det + (1.0/rfr_pc_enrichment_det)*t_det_$t_det + (1.0-(1.0/rfr_pc_enrichment_det))*t_nh4 + (1.0-(1.0/rfr_pc_enrichment_det))*h2o
+***********************
+name        = p_cya_mort_det_$t_det
+description = mortality of diazotroph cyanobacteria
+turnover    = frac_det_$t_det*t_cya*r_pp_mort*(1+9*theta(5.0e-6-t_o2))
+equation    = (1.0-(1.0/rfr_pc_enrichment_det))*h3oplus + t_cya -> (1.0-(1.0/rfr_pc_enrichment_det))*h2o + (1.0-(1.0/rfr_pc_enrichment_det))*t_nh4 + (1.0/rfr_pc_enrichment_det)*t_det_$t_det + (1.0/rfr_pc_enrichment_det)*t_detp_$t_det
+***********************
+name        = p_zoo_mort_det_$t_det
+description = mortality of zooplankton
+turnover    = frac_det_$t_det*zoo_eff*r_zoo_mort*(1+9*theta(5.0e-6-t_o2))
+equation    = t_zoo + (1.0-(1.0/rfr_pc_enrichment_det))*h3oplus -> (1.0/rfr_pc_enrichment_det)*t_detp_$t_det + (1.0/rfr_pc_enrichment_det)*t_det_$t_det + (1.0-(1.0/rfr_pc_enrichment_det))*t_nh4 + (1.0-(1.0/rfr_pc_enrichment_det))*h2o
+***********************
+name        = p_nh4_nit_no3
+description = nitrification
+turnover    = t_nh4*r_nh4_nitrif*exp(q10_nit*cgt_temp)*(1.0-cgt_in_sediment)
+equation    = t_nh4 + 2*t_o2 + h2o -> t_no3 + 2*h3oplus
+limitation  = IV t_o2 > o2_min_nit
+***********************
+name        = p_nh4_nit_no3_sed
+description = nitrification in the sediment
+turnover    = t_nh4*t_o2*k_nh4_o2*exp(q10_nit*cgt_temp)*cgt_in_sediment
+comment     = after Wijsman et al., 2002: A Model for Early Diagenetic Processes in Sediments of \\the Continental Shelf of the Black Sea. Estuarine, Coastal and Shelf Science 54, 403\\-421
+equation    = h2o + 2*t_o2 + t_nh4 -> 2*h3oplus + t_no3
+limitation  = MM t_o2 > o2_min_nit
+***********************
+name        = p_sed_$t_sed_resp_nh4
+description = recycling of sedimentary detritus to ammonium using oxygen (respiration)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)
+equation    = t_sed_$t_sed + rfr_pc_enrichment_det*6.625*t_o2 + h3oplus -> t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic + (1.0+6.625*rfr_pc_enrichment_det)*h2o + rfr_si*t_sil
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_sed_$t_sed_denit_nh4
+description = recycling of sedimentary detritus to ammonium using nitrate (denitrification)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*pH_inhibition_ironred
+comment     = as long as there is enough nitrate, no "negative oxygen" is \\generated (2 NO3- + 2 \\H3O+ -> N2 + 3 H2O + 5/2 O2)
+equation    = rfr_pc_enrichment_det*5.3*t_no3 + (1.0+5.3*rfr_pc_enrichment_det)*h3oplus + t_sed_$t_sed -> rfr_si*t_sil + (1.0+14.575*rfr_pc_enrichment_det)*h2o + rfr_pc_enrichment_det*2.65*t_n2 + t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 > no3_min_sed_denit
+***********************
+name        = p_sed_$t_sed_sulf_nh4
+description = recycling of sedimentary detritus to ammonium using sulfate (sulfate reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*max(t_so4,0.0)/(max(t_so4,0.0)+so4_min_det_sulf)*pH_inhibition_ironred
+equation    = t_sed_$t_sed + rfr_pc_enrichment_det*3.3125*t_so4 + (1.0+rfr_pc_enrichment_det*6.625)*h3oplus -> rfr_si*t_sil + t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic + rfr_pc_enrichment_det*3.3125*t_h2s + (1.0+rfr_pc_enrichment_det*13.25)*h2o
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_ihs < ihs_min_sed_irred_2d
+limitation  = IV t_mos < mos_min_sed_irred_2d
+limitation  = IV t_i3i < ihs_min_sed_irred_2d
+***********************
+name        = p_h2s_oxo2_sul
+description = oxidation of hydrogen sulfide with oxygen
+turnover    = t_h2s*t_o2*k_h2s_o2*exp(q10_h2s*cgt_temp)
+equation    = 0.5*t_o2 + t_h2s -> h2o + t_sul
+isOutput    = 1
+***********************
+name        = p_h2s_oxno3_sul
+description = oxidation of hydrogen sulfide with nitrate
+turnover    = t_h2s*t_no3*k_h2s_no3*exp(q10_h2s*cgt_temp)
+equation    = t_h2s + 0.4*t_no3 + 0.4*h3oplus -> t_sul + 1.6*h2o + 0.2*t_n2
+isOutput    = 1
+***********************
+name        = p_sul_oxo2_so4
+description = oxidation of elemental sulfur with oxygen
+turnover    = t_sul*t_o2*k_sul_o2*exp(q10_h2s*cgt_temp)
+equation    = t_sul + 1.5*t_o2 + 3*h2o -> t_so4 + 2*h3oplus
+***********************
+name        = p_sul_oxno3_so4
+description = oxidation of elemental sulfur with nitrate
+turnover    = t_sul*t_no3*k_sul_no3*exp(q10_h2s*cgt_temp)
+equation    = t_sul + 1.2*t_no3 + 1.2*h2o -> t_so4 + 0.8*h3oplus + 0.6*t_n2
+***********************
+name        = p_det_$t_det_sedi_sed
+description = detritus sedimentation
+turnover    = (1.0-erosion_is_active)*(0.0-w_det_sedi)*t_det_$t_det*cgt_density*(1.0-cgt_in_sediment) + cgt_in_sediment*(t_det_$t_det*cgt_density*cgt_cellheight*0.1)
+equation    = t_det_$t_det -> t_sed_$t_det
+vertLoc     = SED
+***********************
+name        = p_detp_$t_det_sedi_sedp
+description = detritus sedimentation
+turnover    = (1.0-erosion_is_active)*(0.0-w_det_sedi)*t_detp_$t_det*cgt_density*(1.0-cgt_in_sediment) + cgt_in_sediment*(t_detp_$t_det*cgt_density*cgt_cellheight*0.1)
+equation    = t_detp_$t_det -> t_sedp_$t_det
+vertLoc     = SED
+***********************
+name        = p_ipw_sedi_ips
+description = sedimentation of iron PO4
+turnover    = (1.0-erosion_is_active)*(0.0-w_ipw_sedi)*t_ipw*cgt_density*(1.0-cgt_in_sediment)
+equation    = t_ipw -> t_ips
+vertLoc     = SED
+***********************
+name        = p_ihw_sedi_ihs
+description = sedimentation of iron hydroxide
+turnover    = (1.0-erosion_is_active)*(0.0-w_ipw_sedi)*t_ihw*cgt_density*(1.0-cgt_in_sediment)
+equation    = t_ihw -> t_ihs
+vertLoc     = SED
+***********************
+name        = p_mow_sedi_mos
+description = sedimentation of iron hydroxide
+turnover    = (1.0-erosion_is_active)*(0.0-w_ipw_sedi)*t_mow*cgt_density*(1.0-cgt_in_sediment)
+equation    = t_mow -> t_mos
+vertLoc     = SED
+***********************
+name        = p_sed_$t_sed_ero_det
+description = sedimentary detritus erosion
+turnover    = erosion_is_active*r_sed_ero*t_sed_$t_sed*(1.0-cgt_in_sediment)
+equation    = t_sed_$t_sed -> t_det_$t_sed
+vertLoc     = SED
+***********************
+name        = p_sedp_$t_sed_ero_detp
+description = sedimentary detritus erosion
+turnover    = erosion_is_active*r_sed_ero*t_sedp_$t_sed*(1.0-cgt_in_sediment)
+equation    = t_sedp_$t_sed -> t_detp_$t_sed
+vertLoc     = SED
+***********************
+name        = p_ips_ero_ipw
+description = erosion of iron PO4
+turnover    = erosion_is_active*r_ips_ero*t_ips*(1.0-cgt_in_sediment)
+equation    = t_ips -> t_ipw
+vertLoc     = SED
+***********************
+name        = p_ihs_ero_ihw
+description = erosion of iron PO4
+turnover    = erosion_is_active*r_ips_ero*t_ihs*(1.0-cgt_in_sediment)
+equation    = t_ihs -> t_ihw
+vertLoc     = SED
+***********************
+name        = p_mos_ero_mow
+description = erosion of manganese oxide
+turnover    = erosion_is_active*r_ips_ero*t_mos*(1.0-cgt_in_sediment)
+equation    = t_mos -> t_mow
+vertLoc     = SED
+***********************
+name        = p_sed_$t_sed_biores_det
+description = bio resuspension of sedimentary detritus
+turnover    = r_biores*t_sed_$t_sed*(1.0-cgt_in_sediment)
+equation    = t_sed_$t_sed -> t_det_$t_sed
+vertLoc     = SED
+limitation  = MMQ t_o2 > o2_min_sed_resp
+***********************
+name        = p_sedp_$t_sed_biores_detp
+description = bio resuspension of sedimentary detritus
+turnover    = r_biores*t_sedp_$t_sed*(1.0-cgt_in_sediment)
+equation    = t_sedp_$t_sed -> t_detp_$t_sed
+vertLoc     = SED
+limitation  = MMQ t_o2 > o2_min_sed_resp
+***********************
+name        = p_ips_biores_ipw
+description = bio resuspension of iron PO4
+turnover    = r_biores*t_ips*(1.0-cgt_in_sediment)
+equation    = t_ips -> t_ipw
+vertLoc     = SED
+limitation  = MMQ t_o2 > o2_min_sed_resp
+***********************
+name        = p_ihs_biores_ihw
+description = bio resuspension of iron hydroxyde
+turnover    = r_biores*t_ihs*(1.0-cgt_in_sediment)
+equation    = t_ihs -> t_ihw
+vertLoc     = SED
+limitation  = MMQ t_o2 > o2_min_sed_resp
+***********************
+name        = p_stf_det_$t_det
+description = surface flux of detritus
+turnover    = frac_det_$t_det*accrate_det_$t_det*2.47e-4*(1.0-cgt_in_sediment)
+comment     = 2.47e-4 mol/m2/d ist der Fluss pro Tag, der über das Jahr eine 20m-Deckschicht mit \\4.5 mmol/m3 füllt.
+equation    =  -> t_detp_$t_det + t_det_$t_det
+vertLoc     = SED
+***********************
+name        = p_det_$t_det_resp_nh4
+description = recycling of detritus to ammonium using oxygen (respiration)
+turnover    = t_det_$t_det*r_det_$t_det_rec*exp(q10_det_rec*cgt_temp)*(1.0-cgt_in_sediment)
+equation    = t_det_$t_det + rfr_pc_enrichment_det*6.625*t_o2 + h3oplus -> 0*h2o + 0*h3oplus + t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic + (1.0+6.625*rfr_pc_enrichment_det)*h2o
+limitation  = IV t_o2 > o2_min_det_resp
+***********************
+name        = p_det_$t_det_denit_nh4
+description = recycling of detritus to ammonium using nitrate (denitrification)
+turnover    = t_det_$t_det*r_det_$t_det_rec*exp(q10_det_rec*cgt_temp)*(1.0-cgt_in_sediment)
+equation    = t_det_$t_det + (1.0+5.3*rfr_pc_enrichment_det)*h3oplus + rfr_pc_enrichment_det*5.3*t_no3 -> rfr_pc_enrichment_det*rfr_c*t_dic + t_nh4 + rfr_pc_enrichment_det*2.65*t_n2 + (1.0+14.575*rfr_pc_enrichment_det)*h2o
+limitation  = IV t_o2 < o2_min_det_resp
+limitation  = IV t_no3 > no3_min_det_denit
+***********************
+name        = p_det_$t_det_sulf_nh4
+description = recycling of sedimentary detritus to ammonium using sulfate (sulfate reduction)
+turnover    = t_det_$t_det*r_det_$t_det_rec*exp(q10_det_rec*cgt_temp)*max(t_so4,0.0)/(max(t_so4,0.0)+so4_min_det_sulf)*(1.0-cgt_in_sediment)
+equation    = t_det_$t_det + rfr_pc_enrichment_det*3.3125*t_so4 + (1.0+rfr_pc_enrichment_det*6.625)*h3oplus -> t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic + rfr_pc_enrichment_det*3.3125*t_h2s + (1.0+rfr_pc_enrichment_det*13.25)*h2o
+limitation  = IV t_o2 < o2_min_det_resp
+limitation  = IV t_no3 < no3_min_det_denit
+***********************
+name        = p_fe2_ox_ihs
+description = oxidation of Fe2+ to iron hydroxide in the sediment
+turnover    = k_feo2*t_fe2*t_o2*oh*oh*cgt_in_sediment*cgt_cellheight*cgt_density
+equation    = 0.25*t_o2 + 4.5*h2o + t_fe2 -> t_ihs + 2*h3oplus
+vertLoc     = SED
+***********************
+name        = p_fe2_ox_ihw
+description = oxidation of Fe2+ to iron hydroxide in the sediment
+turnover    = k_feo2*t_fe2*t_o2*oh*oh*(1.0-cgt_in_sediment)
+equation    = t_fe2 + 4.5*h2o + 0.25*t_o2 -> 2*h3oplus + t_ihw
+***********************
+name        = p_stf_ihw
+description = surface tracer flux of iron hydroxide [mol/m2/d]
+turnover    = ihs_deposition_moveaway*r_fluffy_moveaway+accrate_det_6*ihs_deposition*2.47e-4
+comment     = 1.1 is mass accumulation rate [kgDW/m2/a]\\0.035 is 3.5% iron in total mass\\55.845 is molar mass of iron\\1.0 means 100% of the iron arrive as iron-III (and 0% as solid iron-II)\\the last quotient is the ratio of the fluxes (fluffy->sediment + fluffy-\\>deep_basins)/(fluffy->sediment)\\0.001 is fluffy layer thickness [m]
+equation    =  -> t_ihw
+vertLoc     = SED
+***********************
+name        = p_stf_mow
+description = surface tracer flux of manganese oxides [mol/m2/d]
+turnover    = ratio_Mn_Fe*p_stf_ihw
+equation    =  -> t_mow
+vertLoc     = SED
+***********************
+name        = p_sed_$t_sed_mnred_mn2
+description = recycling of sedimentary detritus to ammonium using manganese oxide (manganese reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*pH_inhibition_ironred
+equation    = 13.25*rfr_pc_enrichment_det*t_mos + (1.0+26.5*rfr_pc_enrichment_det)*h3oplus + t_sed_$t_sed -> rfr_pc_enrichment_det*rfr_c*t_dic + t_nh4 + 13.25*rfr_pc_enrichment_det*t_mn2 + (1.0+46.375*rfr_pc_enrichment_det)*h2o + rfr_si*t_sil
+vertLoc     = SED
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_mos > mos_min_sed_irred_2d
+***********************
+name        = p_sed_$t_sed_irred_ims
+description = recycling of sedimentary detritus to ammonium using iron hydroxide (iron reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*t_ihs/max(fe3_sed,epsilon)*fe2_ims_is_smallest*pH_inhibition_ironred
+equation    = t_sed_$t_sed + h3oplus + 26.5*rfr_pc_enrichment_det*t_ihs + 26.5*rfr_pc_enrichment_det*t_h2s -> rfr_si*t_sil + (1.0+72.875*rfr_pc_enrichment_det)*h2o + 26.5*rfr_pc_enrichment_det*t_ims + t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_mos < mos_min_sed_irred_2d
+limitation  = IV t_ihs > ihs_min_sed_irred_2d
+***********************
+name        = p_sed_$t_sed_irredips_ims
+description = recycling of sedimentary detritus to ammonium using iron phosphate (iron reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*t_ips/max(fe3_sed,epsilon)*fe2_ims_is_smallest*pH_inhibition_ironred
+equation    = 26.5*rfr_pc_enrichment_det*t_h2s + t_sed_$t_sed + 86.125*rfr_pc_enrichment_det*h2o + (1.0+159.1875*rfr_pc_enrichment_det)*h3oplus + 26.5*rfr_pc_enrichment_det*t_ips -> 238.6875*rfr_pc_enrichment_det*h3oplus + 26.5*rfr_pc_enrichment_det*t_po4 + h2o + 26.5*rfr_pc_enrichment_det*t_ims + t_nh4 + rfr_pc_enrichment_det*rfr_c*t_dic + rfr_si*t_sil
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_mos < mos_min_sed_irred_2d
+limitation  = IV t_ihs > ihs_min_sed_irred_2d
+***********************
+name        = p_sed_$t_sed_irred_iim
+description = recycling of sedimentary detritus to ammonium using iron hydroxide (iron reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*t_ihs/max(fe3_sed,epsilon)*fe2_iim_is_smallest*pH_inhibition_ironred
+equation    = 53*rfr_pc_enrichment_det*ohminus + 26.5*rfr_pc_enrichment_det*t_ihs + h3oplus + t_sed_$t_sed + 53.0*rfr_pc_enrichment_det*h3oplus -> rfr_pc_enrichment_det*rfr_c*t_dic + t_nh4 + 26.5*rfr_pc_enrichment_det*t_iim + h2o + 125.875*rfr_pc_enrichment_det*h2o + rfr_si*t_sil
+vertLoc     = SED
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_mos < mos_min_sed_irred_2d
+limitation  = IV t_ihs > ihs_min_sed_irred_2d
+***********************
+name        = p_sed_$t_sed_irredips_iim
+description = recycling of sedimentary detritus to ammonium using iron hydroxide (iron reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*t_ips/max(fe3_sed,epsilon)*fe2_iim_is_smallest*pH_inhibition_ironred
+equation    = 53*rfr_pc_enrichment_det*ohminus + 33.125*rfr_pc_enrichment_det*h2o + (1+53.0*rfr_pc_enrichment_det)*h3oplus + t_sed_$t_sed + 26.5*rfr_pc_enrichment_det*t_ips -> 79.5*rfr_pc_enrichment_det*h3oplus + h2o + 26.5*rfr_pc_enrichment_det*t_iim + t_nh4 + rfr_pc_enrichment_det*26.5*t_po4 + rfr_pc_enrichment_det*rfr_c*t_dic + rfr_si*t_sil
+vertLoc     = SED
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_mos < mos_min_sed_irred_2d
+limitation  = IV t_ihs > ihs_min_sed_irred_2d
+***********************
+name        = p_i3i_$t_sed_irred_i2i
+description = recycling of sedimentary detritus to ammonium using iron-III in clay minerals (iron reduction)
+turnover    = t_sed_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*pH_inhibition_ironred
+equation    = 26.5*rfr_pc_enrichment_det*t_i3i + h3oplus + t_sed_$t_sed -> rfr_pc_enrichment_det*rfr_c*t_dic + t_nh4 + 26.5*rfr_pc_enrichment_det*i2i + (1.0+19.875*rfr_pc_enrichment_det)*h2o + rfr_si*t_sil
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_o2 < o2_min_sed_resp
+limitation  = IV t_no3 < no3_min_sed_denit
+limitation  = IV t_mos < mos_min_sed_irred_2d
+limitation  = IV t_ihs < ihs_min_sed_irred_2d
+limitation  = IV t_i3i > ihs_min_sed_irred_2d
+***********************
+name        = p_ihs_red_iim
+description = reduction of sedimentary iron hydroxide to iron-II
+turnover    = k_h2s_ihs*t_h2s*ihs_conc_pw*fe2_iim_is_smallest
+equation    = 8.0*t_ihs + t_h2s -> 2.0*h3oplus + t_so4 + 2*h2o + 8.0*t_iim
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_ihs > ihs_min_sed_irred_2d
+***********************
+name        = p_ihs_red_ims
+description = reduction of sedimentary iron hydroxide to iron-II
+turnover    = k_h2s_ihs*t_h2s*ihs_conc_pw*fe2_ims_is_smallest
+equation    = 8.0*t_ihs + 9.0*t_h2s -> 2.0*h3oplus + t_so4 + 18*h2o + 8.0*t_ims
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_ihs > ihs_min_sed_irred_2d
+***********************
+name        = p_stf_po4
+description = relaxation against typical wintertime concentration
+turnover    = theta(1.0e-6-t_po4)*0.1*(1.0e-6-t_po4)*(1.0-cgt_in_sediment)*theta(20.0-cgt_bottomdepth)*theta(cgt_dayofyear-5.0)*theta(55.0-cgt_dayofyear)
+equation    =  -> t_po4
+***********************
+name        = p_stf_po4_up
+description = relaxation against typical wintertime concentration
+turnover    = theta(t_po4-1.0e-6)*0.1*(t_po4-1.0e-6)*(1.0-cgt_in_sediment)*theta(20.0-cgt_bottomdepth)*theta(cgt_dayofyear-5.0)*theta(55.0-cgt_dayofyear)
+equation    = t_po4 -> 
+***********************
+name        = p_stf_no3
+description = relaxation against typical wintertime concentration
+turnover    = theta(2.0*4.5e-6-t_no3)*0.1*(2.0*4.5e-6-t_no3)*(1.0-cgt_in_sediment)*theta(20.0-cgt_bottomdepth)*theta(cgt_dayofyear-5.0)*theta(55.0-cgt_dayofyear)
+equation    =  -> t_no3
+***********************
+name        = p_stf_no3_up
+description = relaxation against typical wintertime concentration
+turnover    = theta(t_no3-2.0*4.5e-6)*0.1*(t_no3-2.0*4.5e-6)*(1.0-cgt_in_sediment)*theta(20.0-cgt_bottomdepth)*theta(cgt_dayofyear-5.0)*theta(55.0-cgt_dayofyear)
+equation    = t_no3 -> 
+***********************
+name        = p_so4_relax_upwards
+description = raise SO4 concentration in the water column to salinity-determined default value
+turnover    = (0.077*sal_for_so4/(32+4*16)-t_so4)*theta(0.077*sal_for_so4/(32+4*16)-t_so4)*(1.0-cgt_in_sediment)
+comment     = see table 2 (salt composition) in http://www.seafriends.org.nz/oceano/seawater.htm
+equation    =  -> t_so4
+***********************
+name        = p_so4_relax_downwards
+description = lower SO4 concentration in the water column to salinity-determined default value
+turnover    = (t_so4-0.077*sal_for_so4/(32+4*16))*theta(t_so4-0.077*sal_for_so4/(32+4*16))*(1.0-cgt_in_sediment)
+comment     = see table 2 (salt composition) in http://www.seafriends.org.nz/oceano/seawater.htm
+equation    = t_so4 -> 
+***********************
+name        = p_ca2_relax_upwards
+description = raise Ca2+ concentration in the water column to salinity-determined default value
+turnover    = (0.0118*sal_for_so4/(40.1)-t_ca2)*theta(0.0118*sal_for_so4/(40.0)-t_ca2)*(1.0-cgt_in_sediment)
+comment     = see table 2 (salt composition) in http://www.seafriends.org.nz/oceano/seawater.htm
+equation    =  -> t_ca2
+***********************
+name        = p_ca2_relax_downwards
+description = lower Ca2+ concentration in the water column to salinity-determined default value
+turnover    = (t_ca2-0.0118*sal_for_so4/(40.1))*theta(t_ca2-0.0118*sal_for_so4/(40.0))*(1.0-cgt_in_sediment)
+equation    = t_ca2 -> 
+***********************
+name        = p_po4_ads_ips
+description = adsorption of phosphate to iron hydroxide particles
+turnover    = k_ips_dissolution * (t_po4 - po4_eq_ips) * theta(t_po4 - po4_eq_ips) *cgt_cellheight*cgt_density
+comment     = Reaction speed depends on the concentration of phosphate and on the ratio of free \\adsorption sites.
+equation    = t_ihs + t_po4 -> t_ips + 3*ohminus
+vertLoc     = SED
+***********************
+name        = p_ips_diss_po4
+description = dissolution of iron phosphate
+turnover    = k_ips_dissolution * (po4_eq_ips-t_po4) * theta(po4_eq_ips-t_po4) *cgt_cellheight*cgt_density
+equation    = t_ips + 3*ohminus -> t_ihs + t_po4
+vertLoc     = SED
+***********************
+name        = p_po4_ads_ipw
+description = adsorption of phosphate to iron hydroxide particles
+turnover    = k_ips_dissolution * (t_po4 - po4_eq_ipw) * theta(t_po4 - po4_eq_ipw)*(1.0-cgt_in_sediment)
+equation    = t_po4 + t_ihw -> 3*ohminus + t_ipw
+***********************
+name        = p_ipw_diss_po4
+description = dissolution of iron phosphate
+turnover    = k_ips_dissolution * (po4_eq_ipw-t_po4) * theta(po4_eq_ipw-t_po4)*(1.0-cgt_in_sediment)
+equation    = t_ipw + 3*ohminus -> t_ihw + t_po4
+***********************
+name        = p_ihs_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_ihs*(1.0-cgt_in_sediment)
+equation    = t_ihs -> 
+vertLoc     = SED
+***********************
+name        = p_ips_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_ips*(1.0-cgt_in_sediment)
+equation    = t_ips -> 
+vertLoc     = SED
+***********************
+name        = p_ims_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_ims*(1.0-cgt_in_sediment)
+equation    = t_ims -> 
+vertLoc     = SED
+***********************
+name        = p_pyr_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_pyr*(1.0-cgt_in_sediment)
+equation    = t_pyr -> 
+vertLoc     = SED
+***********************
+name        = p_mos_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_mos*(1.0-cgt_in_sediment)
+equation    = t_mos -> 
+vertLoc     = SED
+***********************
+name        = t_rho_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_rho*(1.0-cgt_in_sediment)
+equation    = t_rho -> 
+vertLoc     = SED
+***********************
+name        = p_iim_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_iim*(1.0-cgt_in_sediment)
+equation    = t_iim -> 
+vertLoc     = SED
+***********************
+name        = p_ihc_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_ihc*(1.0-cgt_in_sediment)
+equation    = t_ihc -> 
+vertLoc     = SED
+***********************
+name        = p_sed_$t_sed_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_sed_$t_sed*(1.0-cgt_in_sediment)
+equation    = t_sed_$t_sed -> 
+vertLoc     = SED
+***********************
+name        = p_sedp_$t_sed_removal
+description = transport from fluffy layer to deep basins
+turnover    = r_fluffy_moveaway*t_sedp_$t_sed*(1.0-cgt_in_sediment)
+equation    = t_sedp_$t_sed -> 
+vertLoc     = SED
+***********************
+name        = p_fe2_prec_ims
+description = precipitation of iron II as siderite
+turnover    = fe2_ims_is_smallest*cgt_in_sediment*theta(t_fe2-fe2_smooth)*(t_fe2-fe2_smooth)/cgt_timestep*cgt_cellheight*cgt_density
+equation    = t_fe2 + t_h2s + 2.0*ohminus -> t_ims + 2.0*h2o
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_ims_diss_fe2
+description = dissolution of magnetite to iron II (precipitating iron hydroxides)
+turnover    = fe2_ims_is_smallest*cgt_in_sediment*theta(fe2_smooth-t_fe2)*(fe2_smooth-t_fe2)/cgt_timestep*cgt_cellheight*cgt_density
+equation    = t_ims + 2.0*h3oplus -> t_fe2 + t_h2s + 2.0*h2o
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_fe2_prec_iim
+description = precipitation of iron II as minnesotaite
+turnover    = fe2_iim_is_smallest*cgt_in_sediment*theta(t_fe2-fe2_smooth)*(t_fe2-fe2_smooth)/cgt_timestep*cgt_cellheight*cgt_density
+equation    = t_fe2 + 2*ohminus -> t_iim
+vertLoc     = SED
+***********************
+name        = p_iim_diss_fe2
+description = precipitation of iron II as minnesotaite
+turnover    = fe2_iim_is_smallest*cgt_in_sediment*theta(fe2_smooth-t_fe2)*(fe2_smooth-t_fe2)/cgt_timestep*cgt_cellheight*cgt_density
+equation    = t_iim -> 2*ohminus + t_fe2
+vertLoc     = SED
+***********************
+name        = p_stf_alk
+description = relax alkalinity to default value to compensate for detritus removal
+turnover    = theta(0.0024-t_alk)*0.01*(0.0024-t_alk)*(1.0-cgt_in_sediment)*theta(20.0-cgt_bottomdepth)
+equation    =  -> ohminus
+***********************
+name        = p_stf_alk_up
+description = relax alkalinity to default value to compensate for detritus removal
+turnover    = theta(t_alk-0.0024)*0.01*(t_alk-0.0024)*(1.0-cgt_in_sediment)*theta(20.0-cgt_bottomdepth)
+equation    = ohminus -> 
+***********************
+name        = p_ims_trans_iim
+description = iron monosulfide transformation to minnesotaite
+turnover    = fe2_iim_is_smallest*theta(ims_dissolution_rate)*ims_dissolution_rate
+equation    = t_ims + 2*h2o -> t_iim + t_h2s
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_iim_trans_ims
+description = minnesotaite transformation to iron monosulfide
+turnover    = fe2_ims_is_smallest*theta(iim_dissolution_rate)*iim_dissolution_rate
+equation    = t_h2s + t_iim -> 2*h2o + t_ims
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_mn2_ox_mos
+description = oxidation of Mn2+ to manganese oxide in the sediment
+turnover    = k_mno2*t_mn2*t_o2*cgt_in_sediment*cgt_cellheight*cgt_density
+comment     = is biologically controlled, see Kinetics of Mn(II) oxidation by Leptothrix discophora \\SS1
+equation    = 3*h2o + 0.5*t_o2 + t_mn2 -> t_mos + 2*h3oplus
+vertLoc     = SED
+***********************
+name        = p_rho_diss_mn2
+description = rhodochrosite dissolution to manganese-II
+turnover    = 0.1*1.0e-5*theta(1.0-saturation_rhodochrosite)*cgt_in_sediment*cgt_cellheight*cgt_density
+equation    = 3.2*h3oplus + t_rho -> 1.6*t_dic + t_mn2 + 0.6*t_ca2 + 4.8*h2o
+vertLoc     = SED
+***********************
+name        = relax_ohm_quickdiff_up
+description = relax ohm_quickdiff tracer against actual OH- concentration
+turnover    = theta(oh-t_ohm_quickdiff)*(oh-t_ohm_quickdiff)/cgt_timestep
+equation    =  -> t_ohm_quickdiff
+***********************
+name        = relax_ohm_quickdiff_down
+description = relax ohm_quickdiff tracer against actual OH- concentration
+turnover    = theta(t_ohm_quickdiff-oh)*(t_ohm_quickdiff-oh)/cgt_timestep
+equation    = t_ohm_quickdiff -> 
+***********************
+name        = relax_ohm_slowdiff_up
+description = relax ohm_slowdiff tracer against actual OH- concentration
+turnover    = theta(oh-t_ohm_slowdiff)*(oh-t_ohm_slowdiff)/cgt_timestep
+equation    =  -> t_ohm_slowdiff
+***********************
+name        = relax_ohm_slowdiff_down
+description = relax ohm_slowdiff tracer against actual OH- concentration
+turnover    = theta(t_ohm_slowdiff-oh)*(t_ohm_slowdiff-oh)/cgt_timestep
+equation    = t_ohm_slowdiff -> 
+***********************
+name        = p_alk_rise_ohmdiff
+description = rise of total alkalinity by quicker-than-assumed diffusion of OH-
+turnover    = theta(t_ohm_quickdiff-t_ohm_slowdiff)*(t_ohm_quickdiff-t_ohm_slowdiff)/cgt_timestep
+equation    =  -> ohminus
+***********************
+name        = p_alk_fall_ohmdiff
+description = falling of total alkalinity by quicker-than-assumed diffusion of OH-
+turnover    = theta(t_ohm_slowdiff-t_ohm_quickdiff)*(t_ohm_slowdiff-t_ohm_quickdiff)/cgt_timestep
+equation    =  -> h3oplus
+***********************
+name        = p_ims_form2_pyr
+description = pyrite formation from iron monosulfide
+turnover    = t_ims*t_h2s*k_pyrite
+equation    = t_ims + 0.75*t_h2s + 0.25*t_so4 + 0.5*h3oplus -> 1.5*h2o + t_pyr
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_h3o_ads_hss
+description = adsorption of protons to humic acids
+turnover    = cgt_in_sediment*theta(hss_eq-t_hss)*(hss_eq-t_hss)*r_h3o_ads
+equation    = h3oplus -> h2o + t_hss
+vertLoc     = SED
+***********************
+name        = p_hss_lib_h3o
+description = liberation of protons from sheet silicates
+turnover    = cgt_in_sediment*theta(t_hss-hss_eq)*(t_hss-hss_eq)*r_h3o_ads
+equation    = h2o + t_hss -> h3oplus
+vertLoc     = SED
+***********************
+name        = p_pyr_oxmos_ihs
+description = oxidation of pyrite by manganese oxide to iron oxyhydroxide
+turnover    = cgt_in_sediment*max(r_max_lib_mn2_pyrox/cgt_cellheight/cgt_density,r_max_ox_pyr*t_pyr)
+equation    = t_mos + t_pyr + 1.25*h3oplus + 1.25*h2o -> 0.375*t_so4 + 1.625*t_h2s + t_ihs + t_mn2
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_pyr_oxo2_ihs
+description = oxidation of pyrite by manganese oxide to iron oxyhydroxide
+turnover    = cgt_in_sediment*t_o2*pyr_conc_pw*k_o2_pyr*cgt_cellheight*cgt_density
+equation    = 0.25*t_o2 + t_pyr + 4*h2o -> 1.75*t_h2s + 0.25*t_so4 + 0.5*h3oplus + t_ihs
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_imm_oxo2_ihs
+description = oxidation of minnesotaite by oxygen to iron oxyhydroxide
+turnover    = cgt_in_sediment*t_o2*iim_conc_pw*k_o2_pyr*cgt_cellheight*cgt_density
+equation    = 0.5*h2o + t_iim + 0.25*t_o2 -> t_ihs
+vertLoc     = SED
+***********************
+name        = p_remove_silicate
+description = remove silicate in water column as it gets too much
+turnover    = (t_sil-1.0e-5)*0.1*(1.0-cgt_in_sediment)*(20.0-cgt_bottomdepth)
+equation    = t_sil -> 
+***********************
+name        = p_i2i_oxo2_i3i
+description = oxidation of iron-II in illite-montmorillonite mixed layer minerals to iron-III
+turnover    = cgt_in_sediment*max(i3i_max-t_i3i,0.0)*r_i2i_ox
+equation    = i2i + 0.25*t_o2 + 0.5*h2o -> t_i3i
+vertLoc     = SED
+limitation  = IV t_o2 > o2_min_sed_resp
+***********************
+name        = p_i3i_redh2s_i2i
+description = reduction of iron-III in clay minerals to iron-II consuming h2s
+turnover    = r_h2s_ox_i3i*t_h2s
+equation    = 8*t_i3i + t_h2s -> t_so4 + 2*h3oplus + 2*h2o + 8*i2i
+isOutput    = 1
+limitation  = IV t_i3i > ihs_min_sed_irred_2d
+***********************
+name        = p_ihs_trans_ihc
+description = transformation of amorphous iron oxyhydroxides to crystalline phase
+turnover    = r_ihs_trans_ihc*t_ihs
+comment     = rate is 0.6/year taken from \\Reed, D.C., Slomp, C.P., Gustafssonb, B.G., 2011. Sedimentary phosphorus dynamics and \\the evolution of bottom-water hypoxia: A coupled benthic-pelagic model of a coastal \\system. Limnol. Oceanogr 56, 1075-1092.
+equation    = t_ihs -> t_ihc
+vertLoc     = SED
+***********************
+name        = p_ihc_red_iim
+description = reduction of sedimentary iron hydroxide to iron-II
+turnover    = k_h2s_ihs*t_h2s*ihc_conc_pw*fe2_iim_is_smallest
+equation    = 8.0*t_ihc + t_h2s -> 2.0*h3oplus + t_so4 + 2*h2o + 8.0*t_iim
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_ihc > ihs_min_sed_irred_2d
+***********************
+name        = p_ihc_red_ims
+description = reduction of sedimentary iron hydroxide to iron-II
+turnover    = k_h2s_ihs*t_h2s*ihc_conc_pw*fe2_ims_is_smallest
+equation    = 8.0*t_ihc + 9.0*t_h2s -> 2.0*h3oplus + t_so4 + 18*h2o + 8.0*t_ims
+vertLoc     = SED
+isOutput    = 1
+limitation  = IV t_ihc > ihs_min_sed_irred_2d
+***********************
+name        = p_po4_ads_pim
+description = phosphate adsorption to illite-montmorillonite mixed layer minerals
+turnover    = cgt_in_sediment*min(t_po4*cgt_cellheight*cgt_density,max(0.0,pim_eq-t_pim))*r_po4_ads_pim
+equation    = 3*h3oplus + t_po4 -> 3*h2o + t_pim
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_pim_lib_po4
+description = phosphate liberation from illite-montmorillonite mixed layer minerals
+turnover    = cgt_in_sediment*min(po4_ads_pim*cgt_cellheight*cgt_density,max(0.0,t_pim-pim_eq))*r_po4_ads_pim+(1.0-cgt_in_sediment)*t_pim*r_po4_ads_pim
+equation    = 3*h2o + t_pim -> 3*h3oplus + t_po4
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_nh4_ads_aim
+description = ammonium adsorption to illite-montmorillonite mixed layer minerals
+turnover    = cgt_in_sediment*min(t_nh4*cgt_cellheight*cgt_density,max(0.0,aim_eq-t_aim))*r_nh4_ads_aim
+equation    = t_nh4 + ohminus -> t_aim + h2o
+vertLoc     = SED
+***********************
+name        = p_aim_lib_nh4
+description = ammonium liberation from illite-montmorillonite mixed layer minerals
+turnover    = cgt_in_sediment*min(nh4_ads_aim*cgt_cellheight*cgt_density,max(0.0,t_aim-aim_eq))*r_nh4_ads_aim+(1.0-cgt_in_sediment)*t_aim*r_nh4_ads_aim
+equation    = t_aim + h2o -> t_nh4 + ohminus
+vertLoc     = SED
+***********************
+name        = p_aim_nit_no3_sed
+description = nitrification in the sediment
+turnover    = t_aim*t_o2*k_nh4_o2*exp(q10_nit*cgt_temp)*cgt_in_sediment
+equation    = t_aim + 2*t_o2 -> t_no3 + h3oplus
+vertLoc     = SED
+limitation  = MM t_o2 > o2_min_nit
+***********************
+name        = p_fe2_mnox_ihs
+description = oxidation of Fe2+ by reduction of MnO2
+turnover    = t_fe2*mos_conc_pw*k_mno2_fe2*cgt_cellheight*cgt_density
+equation    = 6.0*h2o + 2.0*t_fe2 + t_mos -> 2.0*t_ihs + t_mn2 + 2.0*h3oplus
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_h2s_mnox_so4
+description = oxidation of h2s by reduction of MnO2
+turnover    = t_h2s*mos_conc_pw*k_mno2_h2s*cgt_cellheight*cgt_density
+equation    = t_mos + 1.5*h3oplus + 0.25*t_h2s -> 0.25*t_so4 + 2.5*h2o + t_mn2
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_ims_oxo2_ihs
+description = iron monosulfide oxidation to iron oxihydroxides
+turnover    = k_ims_o2*ims_conc_pw*t_o2*cgt_cellheight*cgt_density
+equation    = 4.5*h2o + 2.25*t_o2 + t_ims -> 2*h3oplus + t_ihs + t_so4
+vertLoc     = SED
+***********************
+name        = p_detp_$t_det_remin_po4
+description = recycling of detritus to ammonium using oxygen (respiration)
+turnover    = t_detp_$t_det*r_det_$t_det_rec*exp(q10_det_rec*cgt_temp)*(1.0-cgt_in_sediment)*(1.0+(factor_pref_remin_p-1.0)*o2_min_sed_resp/(t_o2 + o2_min_sed_resp))
+equation    = 3*rfr_pc_enrichment_det*rfr_p*h2o + t_detp_$t_det -> rfr_pc_enrichment_det*rfr_p*t_po4 + 3*rfr_pc_enrichment_det*rfr_p*h3oplus
+***********************
+name        = p_sedp_$t_sed_remin_po4
+description = recycling of sediment detrital phosphate
+turnover    = t_sedp_$t_sed*r_det_$t_sed_rec*exp(q10_det_rec*cgt_temp)*(1.0+(factor_pref_remin_p-1.0)*o2_min_sed_resp/(t_o2 + o2_min_sed_resp))
+equation    = 3*rfr_pc_enrichment_det*rfr_p*h2o + t_sedp_$t_sed -> rfr_pc_enrichment_det*rfr_p*t_po4 + 3*rfr_pc_enrichment_det*rfr_p*h3oplus
+vertLoc     = SED
+***********************
+name        = p_mn2_prec_rho
+description = manganese-II precipitation to rhodochrosite
+turnover    = 0.1*t_mn2*theta(saturation_rhodochrosite-1.0)*cgt_in_sediment*cgt_cellheight*cgt_density
+equation    = 4.8*h2o + 0.6*t_ca2 + t_mn2 + 1.6*t_dic -> t_rho + 3.2*h3oplus
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_sed_$t_sed_sulfdeep_nh4
+description = parameterization for recycling of sedimentary detritus to ammonium below the deepest sediment layer (sulfate reduction / methane formation)
+turnover    = t_sed_$t_sed*vel_remin_deep*24.0*3600.0/0.02*theta(k-21)
+comment     = Deposition of inert material to the sediment removes tracers from the deepest layer of \\the sediment model (burial).\\This process mineralizes part of the material in the deepest cell by sulfate reduction \\before it is buried.\\The constant vel_remin_deep describes an effective velocity of the burial [m/s] and can \\be calculated by sed_inert_deposition*ratio_deep_mineralization/(1.0-POR)
+equation    = (1.0+rfr_pc_enrichment_det*6.625)*h3oplus + rfr_pc_enrichment_det*3.3125*t_so4 + t_sed_$t_sed -> (1.0+rfr_pc_enrichment_det*13.25)*h2o + rfr_pc_enrichment_det*3.3125*t_h2s + rfr_pc_enrichment_det*rfr_c*t_dic + t_nh4 + rfr_si*t_sil
+vertLoc     = SED
+isOutput    = 1
+***********************
+name        = p_sedp_$t_sed_sulfdeep_po4
+description = parameterization for recycling of sedimentary detritus to ammonium below the deepest sediment layer (sulfate reduction / methane formation)
+turnover    = t_sedp_$t_sed*vel_remin_deep*24.0*3600.0/0.02*theta(k-21)
+equation    = t_sedp_$t_sed + 3*rfr_pc_enrichment_det*rfr_p*h2o -> 3*rfr_pc_enrichment_det*rfr_p*h3oplus + rfr_pc_enrichment_det*rfr_p*t_po4
+vertLoc     = SED
+isOutput    = 1
+***********************
