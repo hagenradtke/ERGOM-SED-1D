@@ -1,0 +1,6 @@
+% depth of full bioturbation
+fitparam6
+% depth scale for exponential decay of bioturbation
+fitparam7
+% depth where bioturbation is set to zero
+fitparam6+fitparam8

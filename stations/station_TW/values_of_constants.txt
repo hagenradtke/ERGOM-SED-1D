@@ -22,7 +22,7 @@
  21.9 ! k_h2s_ihs       = rate constant for hydrogen sulfide oxidation in presence of iron-III minerals [1/d]
  0.02 ! ratio_Mn_Fe     = STATION6 ratio between manganese oxides and iron oxyhydroxides that are imported/precipitate in the water column
  548000 ! k_mno2          = oxidation constant for manganese-II [kg3/mol3/d]
- 0.10 ! vol_fraction_im = STATION6 fraction of illite-montmorillonite mixed layer minerals on volume of all minerals [1]
+ 0.1 ! vol_fraction_im = STATION6 fraction of illite-montmorillonite mixed layer minerals on volume of all minerals [1]
  0.001 ! fe_content_im   = potentially reducible iron content of illite-montmorillonite mixed layer minerals [g/g]
  0.0002 ! p_content_im    = mass fraction of phosphate that can be adsorbed/desorbed to illite-montmorillonite mixed layer minerals [1]
  0 ! n_content_im    = mass fraction of ammonium that can be adsorbed/desorbed to illite-montmorillonite mixed layer minerals [1]

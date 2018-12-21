@@ -13,7 +13,7 @@
  8.9 ! k_pyrite        = rate constant for formation of pyrite [kg/mol/d]
  0.00631 ! ks_fes          = saturation constant for iron monosulfide solubility [mol/kg]
  0.1 ! k_ips_dissolution = inverse timescale for dissolution of iron phosphate [1/d]
- 0.01 ! r_fluffy_moveaway = STATION3 rate with which fluffy layer is transported to deeper areas [1/d]
+ 0.005 ! r_fluffy_moveaway = STATION3 rate with which fluffy layer is transported to deeper areas [1/d]
 20.04 ! sal_for_so4     = STATION3PRESC salinity for determination of water column sulfate [g/kg]
 0.0 ! mar = mass accumulation rate [kg/m2/d] = 1000*secondsPerYear * dbd * sed_inert_deposition = 3.15e10*2.65*0.0 
 2.65 ! dbd = dry bulk density [g/cm3]
